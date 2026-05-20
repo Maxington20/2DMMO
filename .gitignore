@@ -1,0 +1,118 @@
+# =========================
+# Unity Generated Folders
+# =========================
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+
+# =========================
+# Visual Studio / Rider
+# =========================
+
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# =========================
+# Unity Cache
+# =========================
+
+DerivedDataCache/
+
+# =========================
+# OS Files
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+# Crash Reports
+# =========================
+
+sysinfo.txt
+
+# =========================
+# Addressables
+# =========================
+
+Assets/AddressableAssetsData/*/*.bin*
+
+# =========================
+# Auto Generated Builds
+# =========================
+
+*.apk
+*.aab
+*.unitypackage
+
+# =========================
+# Ignore IDE Generated Files
+# =========================
+
+*.sln.docstates
+
+# =========================
+# Ignore Test Coverage
+# =========================
+
+CoverageResults/
+
+# =========================
+# Ignore Recordings
+# =========================
+
+Recordings/
+
+# =========================
+# Ignore Backup Files
+# =========================
+
+*.bak
+*.backup
+*.old
+*.orig
+
+# =========================
+# Ignore Mac Metadata
+# =========================
+
+.AppleDouble
+.LSOverride
+
+# =========================
+# Ignore Unity Collab
+# =========================
+
+.collabignore
+
+# =========================
+# Ignore JetBrains Rider
+# =========================
+
+.idea/
+
+# =========================
+# Ignore VS Code
+# =========================
+
+.vscode/
