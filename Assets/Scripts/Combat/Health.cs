@@ -26,7 +26,7 @@ public class Health : MonoBehaviour
         currentHealth -= damageAmount;
         currentHealth = Mathf.Max(currentHealth, 0);
 
-        Debug.Log($"{gameObject.name} took {damageAmount} damage. HP: {currentHealth}/{maxHealth}");
+        FloatingCombatTextSpawner.Instance?.SpawnDamageText(transform.position, damageAmount);
 
         if (IsDead)
         {
@@ -36,7 +36,6 @@ public class Health : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log($"{gameObject.name} died.");
         gameObject.SetActive(false);
     }
 }
