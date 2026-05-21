@@ -6,6 +6,7 @@ public class PlayerTargetingController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Camera mainCamera;
     [SerializeField] private GameObject targetIndicator;
+    [SerializeField] private TargetFrameUI targetFrameUI;
 
     private Enemy currentTarget;
 
@@ -65,6 +66,11 @@ public class PlayerTargetingController : MonoBehaviour
         indicatorPosition.y -= 0.45f;
 
         targetIndicator.transform.position = indicatorPosition;
+
+        if (targetFrameUI != null)
+        {
+            targetFrameUI.SetTarget(enemy);
+        }
     }
 
     private void ClearTarget()
@@ -74,6 +80,11 @@ public class PlayerTargetingController : MonoBehaviour
         if (targetIndicator != null)
         {
             targetIndicator.SetActive(false);
+        }
+
+        if (targetFrameUI != null)
+        {
+            targetFrameUI.ClearTarget();
         }
     }
 }
