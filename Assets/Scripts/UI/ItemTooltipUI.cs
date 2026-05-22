@@ -73,13 +73,13 @@ public class ItemTooltipUI : MonoBehaviour
 
         if (rarityText != null)
         {
-            rarityText.text = item.rarity.ToString();
+            rarityText.text = BuildRarityAndTypeText(item);
             rarityText.color = GetRarityColor(item.rarity);
         }
 
         if (sellValueText != null)
         {
-            sellValueText.text = $"Sell Value: {item.sellValue} copper";
+            sellValueText.text = BuildDetailText(item);
         }
     }
 
@@ -93,6 +93,38 @@ public class ItemTooltipUI : MonoBehaviour
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
         }
+    }
+
+    private string BuildRarityAndTypeText(ItemDefinition item)
+    {
+        if (item.itemType == ItemType.Equipment)
+        {
+            return $"{item.rarity} {item.equipmentSlot}";
+        }
+
+        return item.rarity.ToString();
+    }
+
+    private string BuildDetailText(ItemDefinition item)
+    {
+        string details = string.Empty;
+
+        if (item.itemType == ItemType.Equipment)
+        {
+            if (item.bonusDamage > 0)
+            {
+                details += $"+{item.bonusDamage} Damage\n";
+            }
+
+            if (item.bonusMaxHealth > 0)
+            {
+                details += $"+{item.bonusMaxHealth} Max Health\n";
+            }
+        }
+
+        details += $"Sell Value: {item.sellValue} copper";
+
+        return details;
     }
 
     private Color GetRarityColor(ItemRarity rarity)

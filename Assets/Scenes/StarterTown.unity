@@ -5737,9 +5737,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoAttackController
   targetingController: {fileID: 1337210937}
+  playerEquipment: {fileID: 0}
   attackRange: 1.4
-  attackSpeedSeconds: 2
-  damage: 5
+  attackSpeedSeconds: 1
+  baseDamage: 5
 --- !u!114 &1337210939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5753,8 +5754,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAbilityController
   targetingController: {fileID: 0}
+  playerEquipment: {fileID: 0}
   strikeRange: 1.6
-  strikeDamage: 10
+  strikeBaseDamage: 10
   strikeCooldownSeconds: 3
 --- !u!114 &1337210940
 MonoBehaviour:
@@ -6564,7 +6566,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 220, y: 120}
+  m_SizeDelta: {x: 220, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1489099778
 MonoBehaviour:
