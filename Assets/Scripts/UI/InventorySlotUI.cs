@@ -1,15 +1,20 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventorySlotUI : MonoBehaviour
+public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("References")]
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI quantityText;
 
+    private InventoryItem currentItem;
+
     public void SetItem(InventoryItem inventoryItem)
     {
+        currentItem = inventoryItem;
+
         if (inventoryItem == null || inventoryItem.ItemDefinition == null)
         {
             Clear();
@@ -32,6 +37,8 @@ public class InventorySlotUI : MonoBehaviour
 
     public void Clear()
     {
+        currentItem = null;
+
         if (iconImage != null)
         {
             iconImage.sprite = null;
@@ -42,5 +49,20 @@ public class InventorySlotUI : MonoBehaviour
         {
             quantityText.text = string.Empty;
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (currentItem == null || currentItem.ItemDefinition == null)
+        {
+            return;
+        }
+
+        ItemTooltipUI.Instance?.Show(currentItem.ItemDefinition);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        ItemTooltipUI.Instance?.Hide();
     }
 }
