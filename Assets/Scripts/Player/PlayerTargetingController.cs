@@ -45,8 +45,8 @@ public class PlayerTargetingController : MonoBehaviour
             return;
         }
 
-        Enemy enemy = hit.collider.GetComponent<Enemy>();
-
+        Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+        
         if (enemy == null)
         {
             ClearTarget();

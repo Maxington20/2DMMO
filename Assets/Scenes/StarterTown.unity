@@ -3612,6 +3612,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 30
+  canRespawn: 1
+  respawnDelay: 8
 --- !u!114 &1246559683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4059,6 +4061,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 100
+  canRespawn: 1
+  respawnDelay: 5
 --- !u!1 &1358585718
 GameObject:
   m_ObjectHideFlags: 0
