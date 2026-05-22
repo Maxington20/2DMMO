@@ -85,6 +85,13 @@ public class Health : MonoBehaviour
         {
             AwardXpToPlayer();
 
+            LootDropper lootDropper = GetComponent<LootDropper>();
+
+            if (lootDropper != null)
+            {
+                lootDropper.DropLoot();
+            }
+
             if (canRespawn)
             {
                 StartCoroutine(EnemyRespawnRoutine());

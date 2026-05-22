@@ -3577,6 +3577,7 @@ GameObject:
   - component: {fileID: 1246559681}
   - component: {fileID: 1246559682}
   - component: {fileID: 1246559683}
+  - component: {fileID: 1246559684}
   m_Layer: 0
   m_Name: Wolf_001
   m_TagString: Untagged
@@ -3676,6 +3677,24 @@ MonoBehaviour:
   homeArrivalDistance: 0.05
   attackDamage: 4
   attackSpeedSeconds: 2
+--- !u!114 &1246559684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246559676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3495a4f97e4d8b84d8ddc2809122bbf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
+  lootTable:
+  - item: {fileID: 11400000, guid: b6d1f49aa4fe33b4ca197456577ac9bb, type: 2}
+    dropChance: 0.5
+  - item: {fileID: 11400000, guid: 8aea64f99343d59489a14f3c93bbac1a, type: 2}
+    dropChance: 0.8
+  lootPickupPrefab: {fileID: 5714656283737485895, guid: 2a8ada2f477e54748bd66ff88a486bd1, type: 3}
 --- !u!1 &1249255837
 GameObject:
   m_ObjectHideFlags: 0
@@ -3719,6 +3738,7 @@ GameObject:
   - component: {fileID: 1250220385}
   - component: {fileID: 1250220387}
   - component: {fileID: 1250220386}
+  - component: {fileID: 1250220388}
   m_Layer: 5
   m_Name: XPBar
   m_TagString: Untagged
@@ -3785,6 +3805,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1250220384}
   m_CullTransparentMesh: 1
+--- !u!114 &1250220388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250220384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7029c4d211d798844b5cabe3e4a6ce99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XPBarUI
+  progression: {fileID: 1337210941}
+  xpFill: {fileID: 1635604637}
+  xpText: {fileID: 579338581}
 --- !u!1 &1274440649
 GameObject:
   m_ObjectHideFlags: 0
