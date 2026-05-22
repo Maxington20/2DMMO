@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EquipmentSlotUI : MonoBehaviour
+public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Slot")]
     [SerializeField] private EquipmentSlotType slotType;
@@ -11,10 +12,14 @@ public class EquipmentSlotUI : MonoBehaviour
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI slotLabelText;
 
+    private ItemDefinition currentItem;
+
     public EquipmentSlotType SlotType => slotType;
 
     public void SetItem(ItemDefinition item)
     {
+        currentItem = item;
+
         if (item == null)
         {
             Clear();
@@ -30,6 +35,8 @@ public class EquipmentSlotUI : MonoBehaviour
 
     public void Clear()
     {
+        currentItem = null;
+
         if (iconImage != null)
         {
             iconImage.sprite = null;
@@ -43,5 +50,20 @@ public class EquipmentSlotUI : MonoBehaviour
         {
             slotLabelText.text = label;
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (currentItem == null)
+        {
+            return;
+        }
+
+        ItemTooltipUI.Instance?.Show(currentItem);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        ItemTooltipUI.Instance?.Hide();
     }
 }

@@ -4,11 +4,12 @@ public class AutoAttackController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerTargetingController targetingController;
+    [SerializeField] private PlayerEquipment playerEquipment;
 
     [Header("Auto Attack")]
     [SerializeField] private float attackRange = 1.4f;
     [SerializeField] private float attackSpeedSeconds = 2f;
-    [SerializeField] private int damage = 5;
+    [SerializeField] private int baseDamage = 5;
 
     private float attackTimer;
 
@@ -17,6 +18,11 @@ public class AutoAttackController : MonoBehaviour
         if (targetingController == null)
         {
             targetingController = GetComponent<PlayerTargetingController>();
+        }
+
+        if (playerEquipment == null)
+        {
+            playerEquipment = GetComponent<PlayerEquipment>();
         }
     }
 
@@ -62,7 +68,14 @@ public class AutoAttackController : MonoBehaviour
 
     private void PerformAttack(Health targetHealth)
     {
-        Debug.Log($"{gameObject.name} auto-attacks {targetHealth.gameObject.name} for {damage} damage.");
-        targetHealth.TakeDamage(damage);
+        int totalDamage = baseDamage + GetBonusDamage();
+
+        Debug.Log($"{gameObject.name} auto-attacks {targetHealth.gameObject.name} for {totalDamage} damage.");
+        targetHealth.TakeDamage(totalDamage);
+    }
+
+    private int GetBonusDamage()
+    {
+        return playerEquipment != null ? playerEquipment.BonusDamage : 0;
     }
 }

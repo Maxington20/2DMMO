@@ -13,4 +13,14 @@ public class InventoryItem
     {
         Quantity += amount;
     }
+
+    public void RemoveQuantity(int amount)
+    {
+        Quantity -= amount;
+
+        if (Quantity < 0)
+        {
+            Quantity = 0;
+        }
+    }
 }

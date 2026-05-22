@@ -6,7 +6,17 @@ public class PlayerEquipment : MonoBehaviour
 {
     private readonly Dictionary<EquipmentSlotType, ItemDefinition> equippedItems = new();
 
+    private PlayerInventory inventory;
+
     public event Action OnEquipmentChanged;
+
+    public int BonusDamage { get; private set; }
+    public int BonusMaxHealth { get; private set; }
+
+    private void Awake()
+    {
+        inventory = GetComponent<PlayerInventory>();
+    }
 
     public ItemDefinition GetEquippedItem(EquipmentSlotType slotType)
     {
@@ -33,11 +43,57 @@ public class PlayerEquipment : MonoBehaviour
             return false;
         }
 
+        if (inventory == null)
+        {
+            Debug.LogWarning("PlayerInventory missing from player.");
+            return false;
+        }
+
+        ItemDefinition currentlyEquipped = GetEquippedItem(item.equipmentSlot);
+
+        if (currentlyEquipped != null && !inventory.HasSpaceFor(currentlyEquipped))
+        {
+            Debug.Log("Cannot equip because inventory has no room for the currently equipped item.");
+            return false;
+        }
+
+        bool removedNewItem = inventory.RemoveItem(item, 1);
+
+        if (!removedNewItem)
+        {
+            Debug.LogWarning($"Could not remove {item.itemName} from inventory.");
+            return false;
+        }
+
+        if (currentlyEquipped != null)
+        {
+            inventory.AddItem(currentlyEquipped, 1);
+        }
+
         equippedItems[item.equipmentSlot] = item;
+
+        RecalculateStats();
 
         Debug.Log($"Equipped {item.itemName} in {item.equipmentSlot} slot.");
 
         OnEquipmentChanged?.Invoke();
         return true;
+    }
+
+    private void RecalculateStats()
+    {
+        BonusDamage = 0;
+        BonusMaxHealth = 0;
+
+        foreach (ItemDefinition item in equippedItems.Values)
+        {
+            if (item == null)
+            {
+                continue;
+            }
+
+            BonusDamage += item.bonusDamage;
+            BonusMaxHealth += item.bonusMaxHealth;
+        }
     }
 }

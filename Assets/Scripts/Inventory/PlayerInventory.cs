@@ -42,4 +42,44 @@ public class PlayerInventory : MonoBehaviour
         Debug.Log($"Added {itemDefinition.itemName} x{quantity} to inventory.");
         return true;
     }
+
+    public bool RemoveItem(ItemDefinition itemDefinition, int quantity = 1)
+    {
+        if (itemDefinition == null || quantity <= 0)
+        {
+            return false;
+        }
+
+        InventoryItem existingItem = items.Find(x => x.ItemDefinition == itemDefinition);
+
+        if (existingItem == null)
+        {
+            return false;
+        }
+
+        existingItem.RemoveQuantity(quantity);
+
+        if (existingItem.Quantity <= 0)
+        {
+            items.Remove(existingItem);
+        }
+
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
+
+    public bool HasSpaceFor(ItemDefinition itemDefinition)
+    {
+        if (itemDefinition == null)
+        {
+            return false;
+        }
+
+        if (items.Exists(x => x.ItemDefinition == itemDefinition))
+        {
+            return true;
+        }
+
+        return items.Count < maxSlots;
+    }
 }

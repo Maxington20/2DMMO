@@ -5,10 +5,11 @@ public class PlayerAbilityController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerTargetingController targetingController;
+    [SerializeField] private PlayerEquipment playerEquipment;
 
     [Header("Strike")]
     [SerializeField] private float strikeRange = 1.6f;
-    [SerializeField] private int strikeDamage = 10;
+    [SerializeField] private int strikeBaseDamage = 10;
     [SerializeField] private float strikeCooldownSeconds = 3f;
 
     private float strikeCooldownTimer;
@@ -18,6 +19,11 @@ public class PlayerAbilityController : MonoBehaviour
         if (targetingController == null)
         {
             targetingController = GetComponent<PlayerTargetingController>();
+        }
+
+        if (playerEquipment == null)
+        {
+            playerEquipment = GetComponent<PlayerEquipment>();
         }
     }
 
@@ -88,9 +94,16 @@ public class PlayerAbilityController : MonoBehaviour
             return;
         }
 
-        targetHealth.TakeDamage(strikeDamage);
+        int totalDamage = strikeBaseDamage + GetBonusDamage();
+
+        targetHealth.TakeDamage(totalDamage);
         strikeCooldownTimer = strikeCooldownSeconds;
 
-        Debug.Log($"Used Strike on {target.EnemyName} for {strikeDamage} damage.");
+        Debug.Log($"Used Strike on {target.EnemyName} for {totalDamage} damage.");
+    }
+
+    private int GetBonusDamage()
+    {
+        return playerEquipment != null ? playerEquipment.BonusDamage : 0;
     }
 }
