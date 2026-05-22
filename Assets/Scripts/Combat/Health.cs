@@ -10,6 +10,9 @@ public class Health : MonoBehaviour
     [SerializeField] private bool canRespawn = false;
     [SerializeField] private float respawnDelay = 5f;
 
+    [Header("Death Reward")]
+    [SerializeField] private int xpReward = 0;
+
     private int currentHealth;
     private bool isDead;
     private Vector3 spawnPosition;
@@ -17,6 +20,7 @@ public class Health : MonoBehaviour
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
     public bool IsDead => isDead;
+    public int XpReward => xpReward;
 
     private void Awake()
     {
@@ -48,6 +52,25 @@ public class Health : MonoBehaviour
         isDead = false;
     }
 
+    public void IncreaseMaxHealth(int amount, bool restoreToFull)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        maxHealth += amount;
+
+        if (restoreToFull)
+        {
+            RestoreFullHealth();
+        }
+        else
+        {
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
+        }
+    }
+
     private void Die()
     {
         isDead = true;
@@ -58,13 +81,40 @@ public class Health : MonoBehaviour
         {
             StartCoroutine(PlayerRespawnRoutine());
         }
-        else if (canRespawn)
-        {
-            StartCoroutine(EnemyRespawnRoutine());
-        }
         else
         {
-            gameObject.SetActive(false);
+            AwardXpToPlayer();
+
+            if (canRespawn)
+            {
+                StartCoroutine(EnemyRespawnRoutine());
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void AwardXpToPlayer()
+    {
+        if (xpReward <= 0)
+        {
+            return;
+        }
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null)
+        {
+            return;
+        }
+
+        PlayerProgression progression = playerObject.GetComponent<PlayerProgression>();
+
+        if (progression != null)
+        {
+            progression.AddXp(xpReward);
         }
     }
 
@@ -104,32 +154,28 @@ public class Health : MonoBehaviour
 
     private void HandlePlayerDeathState(bool dead)
     {
-        PlayerMovementController movement =
-            GetComponent<PlayerMovementController>();
+        PlayerMovementController movement = GetComponent<PlayerMovementController>();
 
         if (movement != null)
         {
             movement.enabled = !dead;
         }
 
-        PlayerTargetingController targeting =
-            GetComponent<PlayerTargetingController>();
+        PlayerTargetingController targeting = GetComponent<PlayerTargetingController>();
 
         if (targeting != null)
         {
             targeting.enabled = !dead;
         }
 
-        AutoAttackController autoAttack =
-            GetComponent<AutoAttackController>();
+        AutoAttackController autoAttack = GetComponent<AutoAttackController>();
 
         if (autoAttack != null)
         {
             autoAttack.enabled = !dead;
         }
 
-        PlayerAbilityController abilities =
-            GetComponent<PlayerAbilityController>();
+        PlayerAbilityController abilities = GetComponent<PlayerAbilityController>();
 
         if (abilities != null)
         {
