@@ -56,7 +56,28 @@ public class LootPickup : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Picked up {item.itemName} [{item.rarity}] worth {item.sellValue} copper.");
-        Destroy(gameObject);
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null)
+        {
+            Debug.LogWarning("Could not find Player object.");
+            return;
+        }
+
+        PlayerInventory inventory = playerObject.GetComponent<PlayerInventory>();
+
+        if (inventory == null)
+        {
+            Debug.LogWarning("Player does not have PlayerInventory.");
+            return;
+        }
+
+        bool added = inventory.AddItem(item, 1);
+
+        if (added)
+        {
+            Debug.Log($"Picked up {item.itemName} [{item.rarity}].");
+            Destroy(gameObject);
+        }
     }
 }
