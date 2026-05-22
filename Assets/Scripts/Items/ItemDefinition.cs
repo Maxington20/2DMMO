@@ -8,4 +8,12 @@ public class ItemDefinition : ScriptableObject
     public ItemRarity rarity;
     public Sprite icon;
     public int sellValue;
+
+    [Header("Item Type")]
+    public ItemType itemType = ItemType.Junk;
+    public EquipmentSlotType equipmentSlot = EquipmentSlotType.None;
+
+    [Header("Equipment Stats")]
+    public int bonusMaxHealth;
+    public int bonusDamage;
 }

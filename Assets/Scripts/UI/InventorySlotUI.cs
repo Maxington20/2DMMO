@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("References")]
     [SerializeField] private Image iconImage;
@@ -64,5 +64,34 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public void OnPointerExit(PointerEventData eventData)
     {
         ItemTooltipUI.Instance?.Hide();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (currentItem == null || currentItem.ItemDefinition == null)
+        {
+            return;
+        }
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null)
+        {
+            return;
+        }
+
+        PlayerEquipment equipment = playerObject.GetComponent<PlayerEquipment>();
+
+        if (equipment == null)
+        {
+            return;
+        }
+
+        equipment.Equip(currentItem.ItemDefinition);
     }
 }

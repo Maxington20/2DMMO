@@ -1,37 +1,51 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ItemTooltipUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject tooltipRoot;
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI rarityText;
     [SerializeField] private TextMeshProUGUI sellValueText;
 
     [Header("Position")]
-    [SerializeField] private Vector2 screenOffset = new Vector2(18f, -18f);
+    [SerializeField] private Vector2 screenOffset = new Vector2(32f, -32f);
 
     public static ItemTooltipUI Instance { get; private set; }
 
     private RectTransform rectTransform;
+    private bool isVisible;
 
     private void Awake()
     {
         Instance = this;
         rectTransform = GetComponent<RectTransform>();
 
+        if (canvasGroup == null)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+        }
+
         Hide();
     }
 
     private void Update()
     {
-        if (tooltipRoot == null || !tooltipRoot.activeSelf)
+        if (!isVisible)
         {
             return;
         }
 
-        rectTransform.position = (Vector2)Input.mousePosition + screenOffset;
+        Mouse mouse = Mouse.current;
+
+        if (mouse == null)
+        {
+            return;
+        }
+
+        rectTransform.position = mouse.position.ReadValue() + screenOffset;
     }
 
     public void Show(ItemDefinition item)
@@ -42,9 +56,13 @@ public class ItemTooltipUI : MonoBehaviour
             return;
         }
 
-        if (tooltipRoot != null)
+        isVisible = true;
+
+        if (canvasGroup != null)
         {
-            tooltipRoot.SetActive(true);
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
         }
 
         if (nameText != null)
@@ -67,9 +85,13 @@ public class ItemTooltipUI : MonoBehaviour
 
     public void Hide()
     {
-        if (tooltipRoot != null)
+        isVisible = false;
+
+        if (canvasGroup != null)
         {
-            tooltipRoot.SetActive(false);
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
         }
     }
 
