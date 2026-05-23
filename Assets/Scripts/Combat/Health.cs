@@ -95,6 +95,7 @@ public class Health : MonoBehaviour
         }
 
         AwardXpToKiller();
+        RegisterQuestKillForKiller();
 
         LootDropper lootDropper = GetComponent<LootDropper>();
 
@@ -125,6 +126,28 @@ public class Health : MonoBehaviour
         if (progression != null)
         {
             progression.AddXp(xpReward);
+        }
+    }
+
+    private void RegisterQuestKillForKiller()
+    {
+        if (lastAttacker == null)
+        {
+            return;
+        }
+
+        PlayerQuestLog questLog = lastAttacker.GetComponent<PlayerQuestLog>();
+
+        if (questLog == null)
+        {
+            return;
+        }
+
+        Enemy enemy = GetComponent<Enemy>();
+
+        if (enemy != null)
+        {
+            questLog.RegisterEnemyKill(enemy);
         }
     }
 
