@@ -17,6 +17,7 @@ public class Health : MonoBehaviour
     private int currentHealth;
     private bool isDead;
     private Vector3 spawnPosition;
+    private GameObject lastAttacker;
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
@@ -31,10 +32,17 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(int damageAmount)
     {
+        TakeDamage(damageAmount, null);
+    }
+
+    public void TakeDamage(int damageAmount, GameObject attacker)
+    {
         if (isDead)
         {
             return;
         }
+
+        lastAttacker = attacker;
 
         currentHealth -= damageAmount;
         currentHealth = Mathf.Max(currentHealth, 0);
@@ -51,6 +59,7 @@ public class Health : MonoBehaviour
     {
         currentHealth = maxHealth;
         isDead = false;
+        lastAttacker = null;
     }
 
     public void IncreaseMaxHealth(int amount, bool restoreToFull)
@@ -84,7 +93,7 @@ public class Health : MonoBehaviour
             return;
         }
 
-        AwardXpToPlayer();
+        AwardXpToKiller();
 
         LootDropper lootDropper = GetComponent<LootDropper>();
 
@@ -103,21 +112,14 @@ public class Health : MonoBehaviour
         }
     }
 
-    private void AwardXpToPlayer()
+    private void AwardXpToKiller()
     {
-        if (xpReward <= 0)
+        if (xpReward <= 0 || lastAttacker == null)
         {
             return;
         }
 
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-
-        if (playerObject == null)
-        {
-            return;
-        }
-
-        PlayerProgression progression = playerObject.GetComponent<PlayerProgression>();
+        PlayerProgression progression = lastAttacker.GetComponent<PlayerProgression>();
 
         if (progression != null)
         {

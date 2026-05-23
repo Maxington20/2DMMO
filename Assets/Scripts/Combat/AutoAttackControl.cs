@@ -71,7 +71,7 @@ public class AutoAttackController : MonoBehaviour
         int totalDamage = baseDamage + GetBonusDamage();
 
         Debug.Log($"{gameObject.name} auto-attacks {targetHealth.gameObject.name} for {totalDamage} damage.");
-        targetHealth.TakeDamage(totalDamage);
+        targetHealth.TakeDamage(totalDamage, gameObject);
     }
 
     private int GetBonusDamage()

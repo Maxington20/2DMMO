@@ -19,7 +19,7 @@ public class FakePlayerCombatController : MonoBehaviour
     [SerializeField] private int damage = 4;
 
     [Header("Movement")]
-    [SerializeField] private float moveSpeed = 2.2f;
+    [SerializeField] private float moveSpeed = 4f;
 
     private Rigidbody2D rb;
     private Enemy currentTarget;
@@ -34,19 +34,33 @@ public class FakePlayerCombatController : MonoBehaviour
 
     private void Update()
     {
+        HandleTimers();
+
         switch (currentState)
         {
             case FakePlayerState.Idle:
                 HandleIdle();
                 break;
 
-            case FakePlayerState.Chasing:
-                HandleChasing();
-                break;
-
             case FakePlayerState.Attacking:
                 HandleAttacking();
                 break;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (currentState == FakePlayerState.Chasing)
+        {
+            HandleChasing();
+        }
+    }
+
+    private void HandleTimers()
+    {
+        if (attackTimer > 0f)
+        {
+            attackTimer -= Time.deltaTime;
         }
     }
 
@@ -63,8 +77,7 @@ public class FakePlayerCombatController : MonoBehaviour
             return;
         }
 
-        float distance =
-            Vector2.Distance(transform.position, currentTarget.transform.position);
+        float distance = Vector2.Distance(rb.position, currentTarget.transform.position);
 
         if (distance <= attackRange)
         {
@@ -72,11 +85,8 @@ public class FakePlayerCombatController : MonoBehaviour
             return;
         }
 
-        Vector2 direction =
-            (currentTarget.transform.position - transform.position).normalized;
-
-        Vector2 nextPosition =
-            rb.position + direction * moveSpeed * Time.deltaTime;
+        Vector2 direction = ((Vector2)currentTarget.transform.position - rb.position).normalized;
+        Vector2 nextPosition = rb.position + direction * moveSpeed * Time.fixedDeltaTime;
 
         rb.MovePosition(nextPosition);
     }
@@ -89,16 +99,13 @@ public class FakePlayerCombatController : MonoBehaviour
             return;
         }
 
-        float distance =
-            Vector2.Distance(transform.position, currentTarget.transform.position);
+        float distance = Vector2.Distance(transform.position, currentTarget.transform.position);
 
         if (distance > attackRange)
         {
             currentState = FakePlayerState.Chasing;
             return;
         }
-
-        attackTimer -= Time.deltaTime;
 
         if (attackTimer <= 0f)
         {
@@ -121,7 +128,7 @@ public class FakePlayerCombatController : MonoBehaviour
             return;
         }
 
-        targetHealth.TakeDamage(damage);
+        targetHealth.TakeDamage(damage, gameObject);
 
         Debug.Log($"{gameObject.name} attacks {currentTarget.EnemyName} for {damage}.");
     }
@@ -147,8 +154,7 @@ public class FakePlayerCombatController : MonoBehaviour
                 continue;
             }
 
-            float distance =
-                Vector2.Distance(transform.position, enemy.transform.position);
+            float distance = Vector2.Distance(transform.position, enemy.transform.position);
 
             if (distance > detectionRange)
             {

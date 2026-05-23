@@ -96,7 +96,7 @@ public class PlayerAbilityController : MonoBehaviour
 
         int totalDamage = strikeBaseDamage + GetBonusDamage();
 
-        targetHealth.TakeDamage(totalDamage);
+        targetHealth.TakeDamage(totalDamage, gameObject);
         strikeCooldownTimer = strikeCooldownSeconds;
 
         Debug.Log($"Used Strike on {target.EnemyName} for {totalDamage} damage.");

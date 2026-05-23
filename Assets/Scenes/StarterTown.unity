@@ -4658,7 +4658,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -4782,6 +4782,7 @@ MonoBehaviour:
   maxHealth: 80
   canRespawn: 1
   respawnDelay: 6
+  visualRoot: {fileID: 0}
   xpReward: 0
 --- !u!114 &1233118959
 MonoBehaviour:
@@ -4799,7 +4800,7 @@ MonoBehaviour:
   attackRange: 1.4
   attackSpeedSeconds: 2
   damage: 4
-  moveSpeed: 3.5
+  moveSpeed: 4
 --- !u!114 &1233118960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4981,7 +4982,7 @@ Transform:
   m_GameObject: {fileID: 1246559676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.74, y: 2.54, z: 0}
+  m_LocalPosition: {x: -5.13, y: 2.54, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5044,6 +5045,7 @@ MonoBehaviour:
   maxHealth: 30
   canRespawn: 1
   respawnDelay: 8
+  visualRoot: {fileID: 1392280939}
   xpReward: 25
 --- !u!114 &1246559683
 MonoBehaviour:
@@ -5824,6 +5826,7 @@ MonoBehaviour:
   maxHealth: 100
   canRespawn: 1
   respawnDelay: 5
+  visualRoot: {fileID: 0}
   xpReward: 0
 --- !u!114 &1337210941
 MonoBehaviour:
