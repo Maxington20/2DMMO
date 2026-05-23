@@ -76,7 +76,7 @@ public class LootPickup : MonoBehaviour
 
         if (added)
         {
-            Debug.Log($"Picked up {item.itemName} [{item.rarity}].");
+            ChatManager.Instance?.AddSystemMessage($"You looted {item.itemName}.");
             Destroy(gameObject);
         }
     }

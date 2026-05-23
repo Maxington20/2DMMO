@@ -29,7 +29,8 @@ public class PlayerProgression : MonoBehaviour
         }
 
         currentXp += amount;
-        Debug.Log($"Gained {amount} XP. XP: {currentXp}/{xpToNextLevel}");
+
+        ChatManager.Instance?.AddSystemMessage($"You gained {amount} XP.");
 
         while (currentXp >= xpToNextLevel)
         {
@@ -41,7 +42,6 @@ public class PlayerProgression : MonoBehaviour
     private void LevelUp()
     {
         currentLevel++;
-
         xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.25f);
 
         if (health != null)
@@ -49,6 +49,6 @@ public class PlayerProgression : MonoBehaviour
             health.IncreaseMaxHealth(healthIncreasePerLevel, true);
         }
 
-        Debug.Log($"Level up! You are now level {currentLevel}.");
+        ChatManager.Instance?.AddSystemMessage($"Congratulations! You reached level {currentLevel}.");
     }
 }

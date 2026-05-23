@@ -89,6 +89,7 @@ public class Health : MonoBehaviour
 
         if (CompareTag("Player"))
         {
+            ChatManager.Instance?.AddSystemMessage("You died.");
             StartCoroutine(PlayerRespawnRoutine());
             return;
         }
@@ -137,6 +138,8 @@ public class Health : MonoBehaviour
         RestoreFullHealth();
 
         HandlePlayerDeathState(false);
+
+        ChatManager.Instance?.AddSystemMessage("You have respawned.");
     }
 
     private IEnumerator GenericRespawnRoutine()

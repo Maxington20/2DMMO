@@ -33,13 +33,13 @@ public class PlayerEquipment : MonoBehaviour
 
         if (item.itemType != ItemType.Equipment)
         {
-            Debug.Log($"{item.itemName} is not equipment.");
+            ChatManager.Instance?.AddSystemMessage($"{item.itemName} cannot be equipped.");
             return false;
         }
 
         if (item.equipmentSlot == EquipmentSlotType.None)
         {
-            Debug.LogWarning($"{item.itemName} has no equipment slot assigned.");
+            ChatManager.Instance?.AddSystemMessage($"{item.itemName} has no valid equipment slot.");
             return false;
         }
 
@@ -53,7 +53,7 @@ public class PlayerEquipment : MonoBehaviour
 
         if (currentlyEquipped != null && !inventory.HasSpaceFor(currentlyEquipped))
         {
-            Debug.Log("Cannot equip because inventory has no room for the currently equipped item.");
+            ChatManager.Instance?.AddSystemMessage("Your inventory is full.");
             return false;
         }
 
@@ -61,7 +61,6 @@ public class PlayerEquipment : MonoBehaviour
 
         if (!removedNewItem)
         {
-            Debug.LogWarning($"Could not remove {item.itemName} from inventory.");
             return false;
         }
 
@@ -74,7 +73,7 @@ public class PlayerEquipment : MonoBehaviour
 
         RecalculateStats();
 
-        Debug.Log($"Equipped {item.itemName} in {item.equipmentSlot} slot.");
+        ChatManager.Instance?.AddSystemMessage($"You equipped {item.itemName}.");
 
         OnEquipmentChanged?.Invoke();
         return true;
