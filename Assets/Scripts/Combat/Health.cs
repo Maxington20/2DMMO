@@ -9,6 +9,7 @@ public class Health : MonoBehaviour
     [Header("Respawn")]
     [SerializeField] private bool canRespawn = false;
     [SerializeField] private float respawnDelay = 5f;
+    [SerializeField] private GameObject visualRoot;
 
     [Header("Death Reward")]
     [SerializeField] private int xpReward = 0;
@@ -80,26 +81,25 @@ public class Health : MonoBehaviour
         if (CompareTag("Player"))
         {
             StartCoroutine(PlayerRespawnRoutine());
+            return;
+        }
+
+        AwardXpToPlayer();
+
+        LootDropper lootDropper = GetComponent<LootDropper>();
+
+        if (lootDropper != null)
+        {
+            lootDropper.DropLoot();
+        }
+
+        if (canRespawn)
+        {
+            StartCoroutine(GenericRespawnRoutine());
         }
         else
         {
-            AwardXpToPlayer();
-
-            LootDropper lootDropper = GetComponent<LootDropper>();
-
-            if (lootDropper != null)
-            {
-                lootDropper.DropLoot();
-            }
-
-            if (canRespawn)
-            {
-                StartCoroutine(EnemyRespawnRoutine());
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
+            SetVisibleAndCollidable(false);
         }
     }
 
@@ -132,30 +132,79 @@ public class Health : MonoBehaviour
         yield return new WaitForSeconds(respawnDelay);
 
         transform.position = spawnPosition;
-
         RestoreFullHealth();
 
         HandlePlayerDeathState(false);
     }
 
-    private IEnumerator EnemyRespawnRoutine()
+    private IEnumerator GenericRespawnRoutine()
     {
-        Transform visual = transform.Find("WolfVisual");
-
-        if (visual != null)
-        {
-            visual.gameObject.SetActive(false);
-        }
+        SetVisibleAndCollidable(false);
+        SetBehaviourEnabled(false);
 
         yield return new WaitForSeconds(respawnDelay);
 
         transform.position = spawnPosition;
-
         RestoreFullHealth();
 
-        if (visual != null)
+        SetVisibleAndCollidable(true);
+        SetBehaviourEnabled(true);
+    }
+
+    private void SetVisibleAndCollidable(bool enabled)
+    {
+        if (visualRoot != null)
         {
-            visual.gameObject.SetActive(true);
+            visualRoot.SetActive(enabled);
+            return;
+        }
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = enabled;
+        }
+
+        Collider2D collider = GetComponent<Collider2D>();
+
+        if (collider != null)
+        {
+            collider.enabled = enabled;
+        }
+
+        foreach (SpriteRenderer childRenderer in GetComponentsInChildren<SpriteRenderer>())
+        {
+            childRenderer.enabled = enabled;
+        }
+
+        foreach (Collider2D childCollider in GetComponentsInChildren<Collider2D>())
+        {
+            childCollider.enabled = enabled;
+        }
+    }
+
+    private void SetBehaviourEnabled(bool enabled)
+    {
+        EnemyCombatController enemyCombat = GetComponent<EnemyCombatController>();
+
+        if (enemyCombat != null)
+        {
+            enemyCombat.enabled = enabled;
+        }
+
+        FakePlayerCombatController fakeCombat = GetComponent<FakePlayerCombatController>();
+
+        if (fakeCombat != null)
+        {
+            fakeCombat.enabled = enabled;
+        }
+
+        FakePlayerController fakeMovement = GetComponent<FakePlayerController>();
+
+        if (fakeMovement != null)
+        {
+            fakeMovement.enabled = enabled;
         }
     }
 

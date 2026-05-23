@@ -4604,6 +4604,8 @@ GameObject:
   - component: {fileID: 1233118954}
   - component: {fileID: 1233118957}
   - component: {fileID: 1233118958}
+  - component: {fileID: 1233118959}
+  - component: {fileID: 1233118960}
   m_Layer: 0
   m_Name: FakePlayer_001
   m_TagString: Untagged
@@ -4756,7 +4758,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1233118952}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc58711b91932874cade3e6d582fc8cc, type: 3}
   m_Name: 
@@ -4778,9 +4780,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 80
-  canRespawn: 0
-  respawnDelay: 5
+  canRespawn: 1
+  respawnDelay: 6
   xpReward: 0
+--- !u!114 &1233118959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233118952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc2159ae582a2774ebfd4da136c631ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FakePlayerCombatController
+  detectionRange: 7
+  attackRange: 1.4
+  attackSpeedSeconds: 2
+  damage: 4
+  moveSpeed: 3.5
+--- !u!114 &1233118960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233118952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2557046a5df8664fb4c4646a9a72e82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatEntity
+  displayName: Thornspark
+  canBeTargetedByEnemies: 1
 --- !u!1 &1237856139
 GameObject:
   m_ObjectHideFlags: 0
@@ -4948,7 +4981,7 @@ Transform:
   m_GameObject: {fileID: 1246559676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.04, y: 5.32, z: 0}
+  m_LocalPosition: {x: 3.74, y: 2.54, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5024,9 +5057,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 624ba2b62c77c154d8d22cc7a14a0c90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCombatController
-  playerTarget: {fileID: 1337210932}
-  moveSpeed: 2.2
   aggroRange: 4
+  moveSpeed: 2.2
   attackRange: 1.1
   leashRange: 7
   homeArrivalDistance: 0.05
@@ -5569,6 +5601,7 @@ GameObject:
   - component: {fileID: 1337210941}
   - component: {fileID: 1337210942}
   - component: {fileID: 1337210943}
+  - component: {fileID: 1337210944}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -5833,6 +5866,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9dc8c11bf7ea3245aa96d33e40f902f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerEquipment
+--- !u!114 &1337210944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337210931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2557046a5df8664fb4c4646a9a72e82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatEntity
+  displayName: Player
+  canBeTargetedByEnemies: 1
 --- !u!1 &1358585718
 GameObject:
   m_ObjectHideFlags: 0

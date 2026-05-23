@@ -13,12 +13,11 @@ public class EnemyCombatController : MonoBehaviour
         ReturningHome
     }
 
-    [Header("Target")]
-    [SerializeField] private Transform playerTarget;
+    [Header("Targeting")]
+    [SerializeField] private float aggroRange = 4f;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.2f;
-    [SerializeField] private float aggroRange = 4f;
     [SerializeField] private float attackRange = 1.1f;
     [SerializeField] private float leashRange = 7f;
     [SerializeField] private float homeArrivalDistance = 0.05f;
@@ -28,9 +27,9 @@ public class EnemyCombatController : MonoBehaviour
     [SerializeField] private float attackSpeedSeconds = 2f;
 
     private Rigidbody2D rb;
-    private Health playerHealth;
     private Vector2 homePosition;
     private EnemyState currentState = EnemyState.Idle;
+    private CombatEntity currentTarget;
     private float attackTimer;
 
     private void Awake()
@@ -39,47 +38,28 @@ public class EnemyCombatController : MonoBehaviour
         homePosition = rb.position;
     }
 
-    private void Start()
-    {
-        if (playerTarget == null)
-        {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-
-            if (playerObject != null)
-            {
-                playerTarget = playerObject.transform;
-            }
-        }
-
-        if (playerTarget != null)
-        {
-            playerHealth = playerTarget.GetComponent<Health>();
-        }
-    }
-
     private void FixedUpdate()
     {
-        if (playerTarget == null || playerHealth == null || playerHealth.IsDead)
+        if (currentTarget != null && !IsTargetValid(currentTarget))
         {
-            ReturnHomeOrIdle();
-            return;
+            currentTarget = null;
+            currentState = EnemyState.ReturningHome;
         }
 
-        float distanceToPlayer = Vector2.Distance(rb.position, playerTarget.position);
         float distanceFromHome = Vector2.Distance(rb.position, homePosition);
 
         switch (currentState)
         {
             case EnemyState.Idle:
-                HandleIdle(distanceToPlayer);
+                HandleIdle();
                 break;
 
             case EnemyState.Chasing:
-                HandleChasing(distanceToPlayer, distanceFromHome);
+                HandleChasing(distanceFromHome);
                 break;
 
             case EnemyState.Attacking:
-                HandleAttacking(distanceToPlayer, distanceFromHome);
+                HandleAttacking(distanceFromHome);
                 break;
 
             case EnemyState.ReturningHome:
@@ -88,40 +68,61 @@ public class EnemyCombatController : MonoBehaviour
         }
     }
 
-    private void HandleIdle(float distanceToPlayer)
+    private void HandleIdle()
     {
-        if (distanceToPlayer <= aggroRange)
+        CombatEntity nearestTarget = FindNearestTarget();
+
+        if (nearestTarget != null)
         {
+            currentTarget = nearestTarget;
             currentState = EnemyState.Chasing;
         }
     }
 
-    private void HandleChasing(float distanceToPlayer, float distanceFromHome)
+    private void HandleChasing(float distanceFromHome)
     {
-        if (distanceFromHome > leashRange)
+        if (currentTarget == null)
         {
             currentState = EnemyState.ReturningHome;
             return;
         }
 
-        if (distanceToPlayer <= attackRange)
+        if (distanceFromHome > leashRange)
+        {
+            currentTarget = null;
+            currentState = EnemyState.ReturningHome;
+            return;
+        }
+
+        float distanceToTarget = Vector2.Distance(rb.position, currentTarget.transform.position);
+
+        if (distanceToTarget <= attackRange)
         {
             currentState = EnemyState.Attacking;
             return;
         }
 
-        MoveToward(playerTarget.position);
+        MoveToward(currentTarget.transform.position);
     }
 
-    private void HandleAttacking(float distanceToPlayer, float distanceFromHome)
+    private void HandleAttacking(float distanceFromHome)
     {
-        if (distanceFromHome > leashRange)
+        if (currentTarget == null)
         {
             currentState = EnemyState.ReturningHome;
             return;
         }
 
-        if (distanceToPlayer > attackRange)
+        if (distanceFromHome > leashRange)
+        {
+            currentTarget = null;
+            currentState = EnemyState.ReturningHome;
+            return;
+        }
+
+        float distanceToTarget = Vector2.Distance(rb.position, currentTarget.transform.position);
+
+        if (distanceToTarget > attackRange)
         {
             currentState = EnemyState.Chasing;
             return;
@@ -131,7 +132,7 @@ public class EnemyCombatController : MonoBehaviour
 
         if (attackTimer <= 0f)
         {
-            AttackPlayer();
+            AttackCurrentTarget();
             attackTimer = attackSpeedSeconds;
         }
     }
@@ -143,6 +144,7 @@ public class EnemyCombatController : MonoBehaviour
         if (distanceToHome <= homeArrivalDistance)
         {
             rb.MovePosition(homePosition);
+            currentTarget = null;
             currentState = EnemyState.Idle;
             attackTimer = 0f;
             return;
@@ -151,18 +153,55 @@ public class EnemyCombatController : MonoBehaviour
         MoveToward(homePosition);
     }
 
-    private void ReturnHomeOrIdle()
+    private CombatEntity FindNearestTarget()
     {
-        float distanceToHome = Vector2.Distance(rb.position, homePosition);
+        CombatEntity[] combatEntities = FindObjectsOfType<CombatEntity>();
 
-        if (distanceToHome > homeArrivalDistance)
+        CombatEntity nearestTarget = null;
+        float nearestDistance = float.MaxValue;
+
+        foreach (CombatEntity entity in combatEntities)
         {
-            currentState = EnemyState.ReturningHome;
+            if (!IsTargetValid(entity))
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(rb.position, entity.transform.position);
+
+            if (distance > aggroRange)
+            {
+                continue;
+            }
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestTarget = entity;
+            }
         }
-        else
+
+        return nearestTarget;
+    }
+
+    private bool IsTargetValid(CombatEntity entity)
+    {
+        if (entity == null)
         {
-            currentState = EnemyState.Idle;
+            return false;
         }
+
+        if (!entity.CanBeTargetedByEnemies)
+        {
+            return false;
+        }
+
+        if (!entity.IsAlive)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private void MoveToward(Vector2 destination)
@@ -179,14 +218,15 @@ public class EnemyCombatController : MonoBehaviour
         rb.MovePosition(nextPosition);
     }
 
-    private void AttackPlayer()
+    private void AttackCurrentTarget()
     {
-        if (playerHealth == null || playerHealth.IsDead)
+        if (currentTarget == null || currentTarget.Health == null)
         {
             return;
         }
 
-        playerHealth.TakeDamage(attackDamage);
-        Debug.Log($"{gameObject.name} attacks player for {attackDamage} damage.");
+        currentTarget.Health.TakeDamage(attackDamage);
+
+        Debug.Log($"{gameObject.name} attacks {currentTarget.DisplayName} for {attackDamage} damage.");
     }
 }
