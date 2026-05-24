@@ -10,6 +10,18 @@ public class QuestGiver : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private float interactionRange = 2f;
 
+    private PlayerQuestLog playerQuestLog;
+
+    private void Start()
+    {
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            playerQuestLog = playerObject.GetComponent<PlayerQuestLog>();
+        }
+    }
+
     private void Update()
     {
         Mouse mouse = Mouse.current;
@@ -37,6 +49,36 @@ public class QuestGiver : MonoBehaviour
         TryInteract();
     }
 
+    public QuestIndicatorState GetIndicatorState()
+    {
+        if (questDefinition == null)
+        {
+            return QuestIndicatorState.None;
+        }
+
+        if (playerQuestLog == null)
+        {
+            TryFindQuestLog();
+        }
+
+        if (playerQuestLog == null)
+        {
+            return QuestIndicatorState.None;
+        }
+
+        if (playerQuestLog.IsReadyToTurnIn)
+        {
+            return QuestIndicatorState.ReadyToTurnIn;
+        }
+
+        if (!playerQuestLog.HasActiveQuest && playerQuestLog.Status != QuestStatus.Completed)
+        {
+            return QuestIndicatorState.Available;
+        }
+
+        return QuestIndicatorState.None;
+    }
+
     private void TryInteract()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -61,18 +103,30 @@ public class QuestGiver : MonoBehaviour
             return;
         }
 
+        playerQuestLog = questLog;
+
         if (questLog.IsReadyToTurnIn)
         {
             questLog.TurnInQuest();
             return;
         }
 
-        if (!questLog.HasActiveQuest)
+        if (!questLog.HasActiveQuest && questLog.Status != QuestStatus.Completed)
         {
             questLog.AcceptQuest(questDefinition);
             return;
         }
 
         ChatManager.Instance?.AddSystemMessage("You are already working on a quest.");
+    }
+
+    private void TryFindQuestLog()
+    {
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            playerQuestLog = playerObject.GetComponent<PlayerQuestLog>();
+        }
     }
 }
