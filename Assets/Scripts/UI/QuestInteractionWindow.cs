@@ -1,0 +1,129 @@
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class QuestInteractionWindow : MonoBehaviour
+{
+    [Header("Root")]
+    [SerializeField] private GameObject windowRoot;
+
+    [Header("Text")]
+    [SerializeField] private TextMeshProUGUI npcNameText;
+    [SerializeField] private TextMeshProUGUI questTitleText;
+    [SerializeField] private TextMeshProUGUI questDescriptionText;
+    [SerializeField] private TextMeshProUGUI objectiveText;
+    [SerializeField] private TextMeshProUGUI rewardText;
+
+    [Header("Buttons")]
+    [SerializeField] private Button acceptButton;
+    [SerializeField] private Button completeButton;
+    [SerializeField] private Button closeButton;
+
+    private QuestGiver currentQuestGiver;
+
+    public static QuestInteractionWindow Instance { get; private set; }
+
+    private void Awake()
+    {
+        Instance = this;
+
+        if (acceptButton != null)
+        {
+            acceptButton.onClick.AddListener(AcceptQuest);
+        }
+
+        if (completeButton != null)
+        {
+            completeButton.onClick.AddListener(CompleteQuest);
+        }
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(Hide);
+        }
+
+        Hide();
+    }
+
+    public void Show(QuestGiver questGiver, PlayerQuestLog questLog)
+    {
+        if (questGiver == null || questLog == null)
+        {
+            return;
+        }
+
+        currentQuestGiver = questGiver;
+
+        QuestDefinition quest = questGiver.QuestDefinition;
+
+        if (quest == null)
+        {
+            return;
+        }
+
+        windowRoot.SetActive(true);
+
+        if (npcNameText != null)
+        {
+            npcNameText.text = questGiver.DisplayName;
+        }
+
+        if (questTitleText != null)
+        {
+            questTitleText.text = quest.questName;
+        }
+
+        if (questDescriptionText != null)
+        {
+            questDescriptionText.text = quest.description;
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.text = $"Objective: Defeat {quest.requiredKills} {quest.targetEnemyName}";
+        }
+
+        if (rewardText != null)
+        {
+            rewardText.text = $"Reward: {quest.xpReward} XP";
+        }
+
+        bool canAccept = !questLog.HasActiveQuest && questLog.Status != QuestStatus.Completed;
+        bool canComplete = questLog.IsReadyToTurnIn;
+
+        acceptButton.gameObject.SetActive(canAccept);
+        completeButton.gameObject.SetActive(canComplete);
+    }
+
+    public void Hide()
+    {
+        if (windowRoot != null)
+        {
+            windowRoot.SetActive(false);
+        }
+
+        currentQuestGiver = null;
+    }
+
+    private void AcceptQuest()
+    {
+        if (currentQuestGiver == null)
+        {
+            return;
+        }
+
+        currentQuestGiver.AcceptQuestFromWindow();
+        Hide();
+    }
+
+    private void CompleteQuest()
+    {
+        if (currentQuestGiver == null)
+        {
+            return;
+        }
+
+        currentQuestGiver.CompleteQuestFromWindow();
+        Hide();
+    }
+}

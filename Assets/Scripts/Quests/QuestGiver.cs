@@ -4,6 +4,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Collider2D))]
 public class QuestGiver : MonoBehaviour
 {
+    [Header("NPC")]
+    [SerializeField] private string displayName = "Thane";
+
     [Header("Quest")]
     [SerializeField] private QuestDefinition questDefinition;
 
@@ -12,14 +15,12 @@ public class QuestGiver : MonoBehaviour
 
     private PlayerQuestLog playerQuestLog;
 
+    public string DisplayName => displayName;
+    public QuestDefinition QuestDefinition => questDefinition;
+
     private void Start()
     {
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-
-        if (playerObject != null)
-        {
-            playerQuestLog = playerObject.GetComponent<PlayerQuestLog>();
-        }
+        TryFindQuestLog();
     }
 
     private void Update()
@@ -79,6 +80,36 @@ public class QuestGiver : MonoBehaviour
         return QuestIndicatorState.None;
     }
 
+    public void AcceptQuestFromWindow()
+    {
+        if (playerQuestLog == null)
+        {
+            TryFindQuestLog();
+        }
+
+        if (playerQuestLog == null)
+        {
+            return;
+        }
+
+        playerQuestLog.AcceptQuest(questDefinition);
+    }
+
+    public void CompleteQuestFromWindow()
+    {
+        if (playerQuestLog == null)
+        {
+            TryFindQuestLog();
+        }
+
+        if (playerQuestLog == null)
+        {
+            return;
+        }
+
+        playerQuestLog.TurnInQuest();
+    }
+
     private void TryInteract()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -105,19 +136,7 @@ public class QuestGiver : MonoBehaviour
 
         playerQuestLog = questLog;
 
-        if (questLog.IsReadyToTurnIn)
-        {
-            questLog.TurnInQuest();
-            return;
-        }
-
-        if (!questLog.HasActiveQuest && questLog.Status != QuestStatus.Completed)
-        {
-            questLog.AcceptQuest(questDefinition);
-            return;
-        }
-
-        ChatManager.Instance?.AddSystemMessage("You are already working on a quest.");
+        QuestInteractionWindow.Instance?.Show(this, questLog);
     }
 
     private void TryFindQuestLog()
