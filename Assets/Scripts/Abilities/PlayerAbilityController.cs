@@ -30,6 +30,12 @@ public class PlayerAbilityController : MonoBehaviour
     private void Update()
     {
         TickCooldowns();
+
+        if (GameplayInputLock.IsLocked)
+        {
+            return;
+        }
+
         HandleInput();
     }
 

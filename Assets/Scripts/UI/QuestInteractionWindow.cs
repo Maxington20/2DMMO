@@ -45,6 +45,11 @@ public class QuestInteractionWindow : MonoBehaviour
         Hide();
     }
 
+    private void OnDestroy()
+    {
+        GameplayInputLock.ClearLock(this);
+    }
+
     public void Show(QuestGiver questGiver, PlayerQuestLog questLog)
     {
         if (questGiver == null || questLog == null)
@@ -62,6 +67,7 @@ public class QuestInteractionWindow : MonoBehaviour
         }
 
         windowRoot.SetActive(true);
+        GameplayInputLock.SetLocked(this, true);
 
         if (npcNameText != null)
         {
@@ -91,8 +97,15 @@ public class QuestInteractionWindow : MonoBehaviour
         bool canAccept = !questLog.HasActiveQuest && questLog.Status != QuestStatus.Completed;
         bool canComplete = questLog.IsReadyToTurnIn;
 
-        acceptButton.gameObject.SetActive(canAccept);
-        completeButton.gameObject.SetActive(canComplete);
+        if (acceptButton != null)
+        {
+            acceptButton.gameObject.SetActive(canAccept);
+        }
+
+        if (completeButton != null)
+        {
+            completeButton.gameObject.SetActive(canComplete);
+        }
     }
 
     public void Hide()
@@ -102,6 +115,7 @@ public class QuestInteractionWindow : MonoBehaviour
             windowRoot.SetActive(false);
         }
 
+        GameplayInputLock.SetLocked(this, false);
         currentQuestGiver = null;
     }
 

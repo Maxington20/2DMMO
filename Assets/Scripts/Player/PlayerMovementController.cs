@@ -17,6 +17,12 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Update()
     {
+        if (GameplayInputLock.IsLocked)
+        {
+            movementInput = Vector2.zero;
+            return;
+        }
+
         movementInput = Vector2.zero;
 
         Keyboard keyboard = Keyboard.current;

@@ -13,6 +13,7 @@ public class EquipmentUI : MonoBehaviour
         if (equipmentPanel != null)
         {
             equipmentPanel.SetActive(false);
+            GameplayInputLock.SetLocked(this, false);
         }
 
         if (playerEquipment != null)
@@ -29,6 +30,8 @@ public class EquipmentUI : MonoBehaviour
         {
             playerEquipment.OnEquipmentChanged -= Refresh;
         }
+
+        GameplayInputLock.ClearLock(this);
     }
 
     private void Update()
@@ -48,9 +51,12 @@ public class EquipmentUI : MonoBehaviour
             return;
         }
 
-        equipmentPanel.SetActive(!equipmentPanel.activeSelf);
+        bool newState = !equipmentPanel.activeSelf;
 
-        if (equipmentPanel.activeSelf)
+        equipmentPanel.SetActive(newState);
+        GameplayInputLock.SetLocked(this, newState);
+
+        if (newState)
         {
             Refresh();
         }

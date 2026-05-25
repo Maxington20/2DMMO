@@ -27,6 +27,11 @@ public class PlayerTargetingController : MonoBehaviour
 
     private void HandleMouseTargeting()
     {
+        if (GameplayInputLock.ShouldBlockWorldClick())
+        {
+            return;
+        }
+
         Mouse mouse = Mouse.current;
 
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame)
@@ -46,7 +51,7 @@ public class PlayerTargetingController : MonoBehaviour
         }
 
         Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
-        
+
         if (enemy == null)
         {
             ClearTarget();

@@ -25,6 +25,11 @@ public class QuestGiver : MonoBehaviour
 
     private void Update()
     {
+        if (GameplayInputLock.ShouldBlockWorldClick())
+        {
+            return;
+        }
+
         Mouse mouse = Mouse.current;
 
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame)

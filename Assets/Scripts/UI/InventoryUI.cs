@@ -17,6 +17,7 @@ public class InventoryUI : MonoBehaviour
         if (inventoryPanel != null)
         {
             inventoryPanel.SetActive(false);
+            GameplayInputLock.SetLocked(this, false);
         }
 
         if (playerInventory != null)
@@ -34,6 +35,8 @@ public class InventoryUI : MonoBehaviour
         {
             playerInventory.OnInventoryChanged -= Refresh;
         }
+
+        GameplayInputLock.ClearLock(this);
     }
 
     private void Update()
@@ -53,9 +56,12 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+        bool newState = !inventoryPanel.activeSelf;
 
-        if (inventoryPanel.activeSelf)
+        inventoryPanel.SetActive(newState);
+        GameplayInputLock.SetLocked(this, newState);
+
+        if (newState)
         {
             Refresh();
         }
