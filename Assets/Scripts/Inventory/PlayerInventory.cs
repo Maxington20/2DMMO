@@ -14,7 +14,7 @@ public class PlayerInventory : MonoBehaviour
 
     public event Action OnInventoryChanged;
 
-    public bool AddItem(ItemDefinition itemDefinition, int quantity = 1)
+    public bool AddItem(ItemDefinition itemDefinition, int quantity = 1, bool saveAfterChange = true)
     {
         if (itemDefinition == null || quantity <= 0)
         {
@@ -27,23 +27,33 @@ public class PlayerInventory : MonoBehaviour
         {
             existingItem.AddQuantity(quantity);
             OnInventoryChanged?.Invoke();
+
+            if (saveAfterChange)
+            {
+                SaveInventory();
+            }
+
             return true;
         }
 
         if (items.Count >= maxSlots)
         {
-            Debug.Log("Inventory is full.");
+            ChatManager.Instance?.AddSystemMessage("Your inventory is full.");
             return false;
         }
 
         items.Add(new InventoryItem(itemDefinition, quantity));
         OnInventoryChanged?.Invoke();
 
-        Debug.Log($"Added {itemDefinition.itemName} x{quantity} to inventory.");
+        if (saveAfterChange)
+        {
+            SaveInventory();
+        }
+
         return true;
     }
 
-    public bool RemoveItem(ItemDefinition itemDefinition, int quantity = 1)
+    public bool RemoveItem(ItemDefinition itemDefinition, int quantity = 1, bool saveAfterChange = true)
     {
         if (itemDefinition == null || quantity <= 0)
         {
@@ -65,6 +75,12 @@ public class PlayerInventory : MonoBehaviour
         }
 
         OnInventoryChanged?.Invoke();
+
+        if (saveAfterChange)
+        {
+            SaveInventory();
+        }
+
         return true;
     }
 
@@ -81,5 +97,73 @@ public class PlayerInventory : MonoBehaviour
         }
 
         return items.Count < maxSlots;
+    }
+
+    public void LoadInventoryFromSave()
+    {
+        items.Clear();
+
+        CharacterData characterData = CharacterSaveManager.LoadCharacter();
+
+        if (characterData == null || characterData.InventoryItems == null)
+        {
+            OnInventoryChanged?.Invoke();
+            return;
+        }
+
+        foreach (SavedInventoryItem savedItem in characterData.InventoryItems)
+        {
+            if (savedItem == null || savedItem.Quantity <= 0)
+            {
+                continue;
+            }
+
+            ItemDefinition item = ItemDatabase.Instance?.GetItemById(savedItem.ItemId);
+
+            if (item == null)
+            {
+                Debug.LogWarning($"Could not load inventory item with ID: {savedItem.ItemId}");
+                continue;
+            }
+
+            AddItem(item, savedItem.Quantity, false);
+        }
+
+        OnInventoryChanged?.Invoke();
+    }
+
+    public void SaveInventory()
+    {
+        CharacterData characterData = CharacterSaveManager.LoadCharacter();
+
+        if (characterData == null)
+        {
+            return;
+        }
+
+        characterData.InventoryItems.Clear();
+
+        foreach (InventoryItem inventoryItem in items)
+        {
+            if (inventoryItem == null || inventoryItem.ItemDefinition == null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(inventoryItem.ItemDefinition.itemId))
+            {
+                Debug.LogWarning($"{inventoryItem.ItemDefinition.itemName} has no itemId and cannot be saved.");
+                continue;
+            }
+
+            characterData.InventoryItems.Add(
+                new SavedInventoryItem(
+                    inventoryItem.ItemDefinition.itemId,
+                    inventoryItem.Quantity
+                )
+            );
+        }
+
+        CharacterSaveManager.SaveCharacter(characterData);
     }
 }

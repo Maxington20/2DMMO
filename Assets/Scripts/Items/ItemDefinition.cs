@@ -3,6 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewItem", menuName = "MMO Simulator/Item")]
 public class ItemDefinition : ScriptableObject
 {
+    [Header("Save Identity")]
+    public string itemId;
+
     [Header("Item Info")]
     public string itemName;
     public ItemRarity rarity;

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729dcbc9b5db52a4da5cee824c0b554c, type: 3}
   m_Name: RustySword
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
+  itemId: rusty_sword
   itemName: Rusty Sword
   rarity: 1
   icon: {fileID: 21300000, guid: 5bedc3e1d41b42f40a8a649b081b4864, type: 3}

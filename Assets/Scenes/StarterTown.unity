@@ -5232,9 +5232,58 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 951598481}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &951598480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 951598481}
+  - component: {fileID: 951598482}
+  m_Layer: 0
+  m_Name: ItemDatabase
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &951598481
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 951598480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 945592543}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &951598482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 951598480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 099b50ec54137684ba48a8b34daddcd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemDatabase
+  items:
+  - {fileID: 11400000, guid: 8aea64f99343d59489a14f3c93bbac1a, type: 2}
+  - {fileID: 11400000, guid: b6d1f49aa4fe33b4ca197456577ac9bb, type: 2}
+  - {fileID: 11400000, guid: 82be6e18140998841836c61b322c4a8b, type: 2}
 --- !u!1 &995754714
 GameObject:
   m_ObjectHideFlags: 0
@@ -7310,6 +7359,7 @@ GameObject:
   - component: {fileID: 1337210944}
   - component: {fileID: 1337210945}
   - component: {fileID: 1337210946}
+  - component: {fileID: 1337210947}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -7620,6 +7670,20 @@ MonoBehaviour:
   combatEntity: {fileID: 1337210944}
   abilityController: {fileID: 1337210939}
   actionBarUI: {fileID: 1572121504}
+--- !u!114 &1337210947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337210931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7b7d2b5a24704d458f699e316e3afc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSaveInitializer
+  playerInventory: {fileID: 1337210942}
+  playerEquipment: {fileID: 1337210943}
 --- !u!1 &1358585718
 GameObject:
   m_ObjectHideFlags: 0

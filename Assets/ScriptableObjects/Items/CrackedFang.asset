@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729dcbc9b5db52a4da5cee824c0b554c, type: 3}
   m_Name: CrackedFang
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
+  itemId: cracked_fang
   itemName: Cracked Fang
   rarity: 0
   icon: {fileID: 21300000, guid: 8bb98b8b1eb086d489cc8ec098c4407c, type: 3}
   sellValue: 1
+  itemType: 0
+  equipmentSlot: 0
+  bonusMaxHealth: 0
+  bonusDamage: 0
