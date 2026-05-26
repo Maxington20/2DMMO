@@ -26,7 +26,13 @@ public class CharacterSelectUI : MonoBehaviour
 
     private void Awake()
     {
-        selectedCharacter = new CharacterData("Thalen", "Human", "Warrior");
+        selectedCharacter = CharacterSaveManager.LoadCharacter();
+
+        if (selectedCharacter == null)
+        {
+            selectedCharacter = new CharacterData("Thalen", "Human", "Warrior");
+            CharacterSaveManager.SaveCharacter(selectedCharacter);
+        }
 
         if (enterWorldButton != null)
         {
@@ -169,6 +175,8 @@ public class CharacterSelectUI : MonoBehaviour
         string className = classDropdown.options[classDropdown.value].text;
 
         selectedCharacter = new CharacterData(characterName, species, className);
+
+        CharacterSaveManager.SaveCharacter(selectedCharacter);
 
         RefreshCharacterCard();
         HideCreationPanel();
