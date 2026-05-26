@@ -24,6 +24,7 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private TMP_InputField characterNameInput;
     [SerializeField] private TMP_Dropdown speciesDropdown;
     [SerializeField] private TMP_Dropdown classDropdown;
+    [SerializeField] private TextMeshProUGUI creationErrorText;
     [SerializeField] private Button confirmCreateButton;
     [SerializeField] private Button cancelCreateButton;
 
@@ -32,6 +33,9 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI deleteConfirmationText;
     [SerializeField] private Button confirmDeleteButton;
     [SerializeField] private Button cancelDeleteButton;
+
+    private const int MinimumNameLength = 3;
+    private const int MaximumNameLength = 16;
 
     private CharacterData selectedCharacter;
     private int selectedSlotIndex;
@@ -152,7 +156,9 @@ public class CharacterSelectUI : MonoBehaviour
 
         selectedCharacter = CharacterSaveManager.LoadCharacter(selectedSlotIndex);
 
+        HideCreationPanel();
         HideDeleteConfirmationPanel();
+
         RefreshAllSlots();
         RefreshSelectedCharacterCard();
     }
@@ -195,7 +201,9 @@ public class CharacterSelectUI : MonoBehaviour
 
     private void RefreshSelectedCharacterCard()
     {
-        if (selectedCharacter == null)
+        bool slotIsEmpty = selectedCharacter == null;
+
+        if (slotIsEmpty)
         {
             if (characterNameText != null)
             {
@@ -215,6 +223,11 @@ public class CharacterSelectUI : MonoBehaviour
             if (deleteCharacterButton != null)
             {
                 deleteCharacterButton.interactable = false;
+            }
+
+            if (createCharacterButton != null)
+            {
+                createCharacterButton.interactable = true;
             }
 
             return;
@@ -242,15 +255,30 @@ public class CharacterSelectUI : MonoBehaviour
         {
             deleteCharacterButton.interactable = true;
         }
+
+        if (createCharacterButton != null)
+        {
+            createCharacterButton.interactable = false;
+        }
     }
 
     private void ShowCreationPanel()
     {
+        if (selectedCharacter != null)
+        {
+            return;
+        }
+
         HideDeleteConfirmationPanel();
 
         if (creationPanel != null)
         {
             creationPanel.SetActive(true);
+        }
+
+        if (creationErrorText != null)
+        {
+            creationErrorText.text = string.Empty;
         }
 
         if (characterNameInput != null)
@@ -266,10 +294,21 @@ public class CharacterSelectUI : MonoBehaviour
         {
             creationPanel.SetActive(false);
         }
+
+        if (creationErrorText != null)
+        {
+            creationErrorText.text = string.Empty;
+        }
     }
 
     private void CreateCharacter()
     {
+        if (selectedCharacter != null)
+        {
+            SetCreationError("This slot already has a character.");
+            return;
+        }
+
         if (characterNameInput == null || speciesDropdown == null || classDropdown == null)
         {
             return;
@@ -277,9 +316,10 @@ public class CharacterSelectUI : MonoBehaviour
 
         string characterName = characterNameInput.text.Trim();
 
-        if (string.IsNullOrWhiteSpace(characterName))
+        if (!IsValidCharacterName(characterName, out string validationMessage))
         {
-            characterName = "New Adventurer";
+            SetCreationError(validationMessage);
+            return;
         }
 
         string species = speciesDropdown.options[speciesDropdown.value].text;
@@ -295,12 +335,46 @@ public class CharacterSelectUI : MonoBehaviour
         HideCreationPanel();
     }
 
+    private bool IsValidCharacterName(string characterName, out string validationMessage)
+    {
+        if (string.IsNullOrWhiteSpace(characterName))
+        {
+            validationMessage = "Name cannot be blank.";
+            return false;
+        }
+
+        if (characterName.Length < MinimumNameLength)
+        {
+            validationMessage = $"Name must be at least {MinimumNameLength} characters.";
+            return false;
+        }
+
+        if (characterName.Length > MaximumNameLength)
+        {
+            validationMessage = $"Name cannot exceed {MaximumNameLength} characters.";
+            return false;
+        }
+
+        validationMessage = string.Empty;
+        return true;
+    }
+
+    private void SetCreationError(string message)
+    {
+        if (creationErrorText != null)
+        {
+            creationErrorText.text = message;
+        }
+    }
+
     private void ShowDeleteConfirmationPanel()
     {
         if (selectedCharacter == null || deleteConfirmationPanel == null)
         {
             return;
         }
+
+        HideCreationPanel();
 
         if (deleteConfirmationText != null)
         {
