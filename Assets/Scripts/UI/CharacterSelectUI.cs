@@ -5,13 +5,18 @@ using UnityEngine.UI;
 
 public class CharacterSelectUI : MonoBehaviour
 {
-    [Header("Character Card")]
+    [Header("Character Cards")]
+    [SerializeField] private Button[] characterSlotButtons;
+    [SerializeField] private TextMeshProUGUI[] characterSlotTexts;
+
+    [Header("Selected Character Details")]
     [SerializeField] private TextMeshProUGUI characterNameText;
     [SerializeField] private TextMeshProUGUI characterDetailsText;
 
     [Header("Main Buttons")]
     [SerializeField] private Button enterWorldButton;
     [SerializeField] private Button createCharacterButton;
+    [SerializeField] private Button deleteCharacterButton;
     [SerializeField] private Button quitButton;
 
     [Header("Creation Panel")]
@@ -23,17 +28,42 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private Button cancelCreateButton;
 
     private CharacterData selectedCharacter;
+    private int selectedSlotIndex;
 
     private void Awake()
     {
-        selectedCharacter = CharacterSaveManager.LoadCharacter();
+        selectedSlotIndex = CharacterSaveManager.GetSelectedSlot();
+        selectedCharacter = CharacterSaveManager.LoadCharacter(selectedSlotIndex);
 
-        if (selectedCharacter == null)
+        SetupSlotButtons();
+        SetupMainButtons();
+        SetupDropdowns();
+
+        HideCreationPanel();
+        RefreshAllSlots();
+        RefreshSelectedCharacterCard();
+    }
+
+    private void SetupSlotButtons()
+    {
+        if (characterSlotButtons == null)
         {
-            selectedCharacter = new CharacterData("Thalen", "Human", "Warrior");
-            CharacterSaveManager.SaveCharacter(selectedCharacter);
+            return;
         }
 
+        for (int i = 0; i < characterSlotButtons.Length; i++)
+        {
+            int capturedIndex = i;
+
+            if (characterSlotButtons[i] != null)
+            {
+                characterSlotButtons[i].onClick.AddListener(() => SelectSlot(capturedIndex));
+            }
+        }
+    }
+
+    private void SetupMainButtons()
+    {
         if (enterWorldButton != null)
         {
             enterWorldButton.onClick.AddListener(EnterWorld);
@@ -42,6 +72,11 @@ public class CharacterSelectUI : MonoBehaviour
         if (createCharacterButton != null)
         {
             createCharacterButton.onClick.AddListener(ShowCreationPanel);
+        }
+
+        if (deleteCharacterButton != null)
+        {
+            deleteCharacterButton.onClick.AddListener(DeleteSelectedCharacter);
         }
 
         if (quitButton != null)
@@ -58,10 +93,6 @@ public class CharacterSelectUI : MonoBehaviour
         {
             cancelCreateButton.onClick.AddListener(HideCreationPanel);
         }
-
-        SetupDropdowns();
-        HideCreationPanel();
-        RefreshCharacterCard();
     }
 
     private void SetupDropdowns()
@@ -96,23 +127,75 @@ public class CharacterSelectUI : MonoBehaviour
         }
     }
 
-    private void RefreshCharacterCard()
+    private void SelectSlot(int slotIndex)
+    {
+        selectedSlotIndex = slotIndex;
+        CharacterSaveManager.SetSelectedSlot(selectedSlotIndex);
+
+        selectedCharacter = CharacterSaveManager.LoadCharacter(selectedSlotIndex);
+
+        RefreshAllSlots();
+        RefreshSelectedCharacterCard();
+    }
+
+    private void RefreshAllSlots()
+    {
+        if (characterSlotTexts == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < characterSlotTexts.Length; i++)
+        {
+            CharacterData slotCharacter = CharacterSaveManager.LoadCharacter(i);
+
+            if (characterSlotTexts[i] == null)
+            {
+                continue;
+            }
+
+            if (slotCharacter == null)
+            {
+                characterSlotTexts[i].text = i == selectedSlotIndex
+                    ? $"<b>Slot {i + 1}</b>\nEmpty\n<color=#FFD45A>Selected</color>"
+                    : $"<b>Slot {i + 1}</b>\nEmpty";
+            }
+            else
+            {
+                string selectedText = i == selectedSlotIndex
+                    ? "\n<color=#FFD45A>Selected</color>"
+                    : string.Empty;
+
+                characterSlotTexts[i].text =
+                    $"<b>{slotCharacter.CharacterName}</b>\n" +
+                    $"Level {slotCharacter.Level} {slotCharacter.Species} {slotCharacter.ClassName}" +
+                    selectedText;
+            }
+        }
+    }
+
+    private void RefreshSelectedCharacterCard()
     {
         if (selectedCharacter == null)
         {
             if (characterNameText != null)
             {
-                characterNameText.text = "No Character";
+                characterNameText.text = $"Slot {selectedSlotIndex + 1}: Empty";
             }
 
             if (characterDetailsText != null)
             {
-                characterDetailsText.text = "Create a character to begin.";
+                characterDetailsText.text = "Create a character in this slot to begin.";
             }
 
             if (enterWorldButton != null)
             {
                 enterWorldButton.interactable = false;
+            }
+
+            if (deleteCharacterButton != null)
+            {
+                deleteCharacterButton.interactable = false;
             }
 
             return;
@@ -134,6 +217,11 @@ public class CharacterSelectUI : MonoBehaviour
         if (enterWorldButton != null)
         {
             enterWorldButton.interactable = true;
+        }
+
+        if (deleteCharacterButton != null)
+        {
+            deleteCharacterButton.interactable = true;
         }
     }
 
@@ -178,14 +266,32 @@ public class CharacterSelectUI : MonoBehaviour
 
         selectedCharacter = new CharacterData(characterName, species, className);
 
-        CharacterSaveManager.SaveCharacter(selectedCharacter);
+        CharacterSaveManager.SaveCharacter(selectedSlotIndex, selectedCharacter);
+        CharacterSaveManager.SetSelectedSlot(selectedSlotIndex);
 
-        RefreshCharacterCard();
+        RefreshAllSlots();
+        RefreshSelectedCharacterCard();
         HideCreationPanel();
+    }
+
+    private void DeleteSelectedCharacter()
+    {
+        CharacterSaveManager.DeleteSavedCharacter(selectedSlotIndex);
+
+        selectedCharacter = null;
+
+        RefreshAllSlots();
+        RefreshSelectedCharacterCard();
     }
 
     private void EnterWorld()
     {
+        if (selectedCharacter == null)
+        {
+            return;
+        }
+
+        CharacterSaveManager.SetSelectedSlot(selectedSlotIndex);
         SceneManager.LoadScene("StarterTown");
     }
 
