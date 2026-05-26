@@ -10,6 +10,8 @@ public class PlayerProgression : MonoBehaviour
     [Header("Scaling")]
     [SerializeField] private int healthIncreasePerLevel = 10;
 
+    private const int DefaultXpToNextLevel = 100;
+
     private Health health;
 
     public int CurrentLevel => currentLevel;
@@ -19,6 +21,11 @@ public class PlayerProgression : MonoBehaviour
     private void Awake()
     {
         health = GetComponent<Health>();
+    }
+
+    private void Start()
+    {
+        LoadProgressionFromSave();
     }
 
     public void AddXp(int amount)
@@ -37,6 +44,8 @@ public class PlayerProgression : MonoBehaviour
             currentXp -= xpToNextLevel;
             LevelUp();
         }
+
+        SaveProgression();
     }
 
     private void LevelUp()
@@ -50,5 +59,43 @@ public class PlayerProgression : MonoBehaviour
         }
 
         ChatManager.Instance?.AddSystemMessage($"Congratulations! You reached level {currentLevel}.");
+    }
+
+    private void LoadProgressionFromSave()
+    {
+        CharacterData characterData = CharacterSaveManager.LoadCharacter();
+
+        if (characterData == null)
+        {
+            currentLevel = 1;
+            currentXp = 0;
+            xpToNextLevel = DefaultXpToNextLevel;
+            return;
+        }
+
+        currentLevel = Mathf.Max(1, characterData.Level);
+        currentXp = Mathf.Max(0, characterData.CurrentXp);
+
+        xpToNextLevel = characterData.XpToNextLevel <= 1
+            ? DefaultXpToNextLevel
+            : characterData.XpToNextLevel;
+
+        SaveProgression();
+    }
+
+    private void SaveProgression()
+    {
+        CharacterData characterData = CharacterSaveManager.LoadCharacter();
+
+        if (characterData == null)
+        {
+            return;
+        }
+
+        characterData.Level = currentLevel;
+        characterData.CurrentXp = currentXp;
+        characterData.XpToNextLevel = xpToNextLevel;
+
+        CharacterSaveManager.SaveCharacter(characterData);
     }
 }

@@ -126,7 +126,9 @@ public class CharacterSelectUI : MonoBehaviour
         if (characterDetailsText != null)
         {
             characterDetailsText.text =
-                $"Level {selectedCharacter.Level} {selectedCharacter.Species} {selectedCharacter.ClassName}\n{selectedCharacter.StartingZone}";
+                $"Level {selectedCharacter.Level} {selectedCharacter.Species} {selectedCharacter.ClassName}\n" +
+                $"{selectedCharacter.CurrentXp} / {selectedCharacter.XpToNextLevel} XP\n" +
+                $"{selectedCharacter.StartingZone}";
         }
 
         if (enterWorldButton != null)
