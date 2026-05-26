@@ -7,12 +7,15 @@ public class PlayerAbilityController : MonoBehaviour
     [SerializeField] private PlayerTargetingController targetingController;
     [SerializeField] private PlayerEquipment playerEquipment;
 
-    [Header("Strike")]
-    [SerializeField] private float strikeRange = 1.6f;
-    [SerializeField] private int strikeBaseDamage = 10;
-    [SerializeField] private float strikeCooldownSeconds = 3f;
+    [Header("Primary Ability")]
+    [SerializeField] private string primaryAbilityName = "Strike";
+    [SerializeField] private float primaryAbilityRange = 1.6f;
+    [SerializeField] private int primaryAbilityBaseDamage = 10;
+    [SerializeField] private float primaryAbilityCooldownSeconds = 3f;
 
-    private float strikeCooldownTimer;
+    private float primaryAbilityCooldownTimer;
+
+    public string PrimaryAbilityName => primaryAbilityName;
 
     private void Awake()
     {
@@ -39,11 +42,69 @@ public class PlayerAbilityController : MonoBehaviour
         HandleInput();
     }
 
+    public void ConfigurePrimaryAbilityForClass(string className)
+    {
+        switch (className)
+        {
+            case "Wizard":
+                primaryAbilityName = "Firebolt";
+                primaryAbilityRange = 5f;
+                primaryAbilityBaseDamage = 12;
+                primaryAbilityCooldownSeconds = 2.5f;
+                break;
+
+            case "Priest":
+                primaryAbilityName = "Smite";
+                primaryAbilityRange = 4.5f;
+                primaryAbilityBaseDamage = 9;
+                primaryAbilityCooldownSeconds = 2.5f;
+                break;
+
+            case "Ranger":
+                primaryAbilityName = "Shot";
+                primaryAbilityRange = 5f;
+                primaryAbilityBaseDamage = 10;
+                primaryAbilityCooldownSeconds = 2.2f;
+                break;
+
+            case "Rogue":
+                primaryAbilityName = "Stab";
+                primaryAbilityRange = 1.3f;
+                primaryAbilityBaseDamage = 13;
+                primaryAbilityCooldownSeconds = 2f;
+                break;
+
+            case "Necromancer":
+                primaryAbilityName = "Shadow Bolt";
+                primaryAbilityRange = 4.5f;
+                primaryAbilityBaseDamage = 11;
+                primaryAbilityCooldownSeconds = 2.8f;
+                break;
+
+            case "Artificer":
+                primaryAbilityName = "Spark Shot";
+                primaryAbilityRange = 4.5f;
+                primaryAbilityBaseDamage = 10;
+                primaryAbilityCooldownSeconds = 2.3f;
+                break;
+
+            case "Warrior":
+            default:
+                primaryAbilityName = "Strike";
+                primaryAbilityRange = 1.6f;
+                primaryAbilityBaseDamage = 10;
+                primaryAbilityCooldownSeconds = 3f;
+                break;
+        }
+
+        ChatManager.Instance?.AddSystemMessage($"Primary ability set to {primaryAbilityName}.");
+    }
+
     private void TickCooldowns()
     {
-        if (strikeCooldownTimer > 0f)
+        if (primaryAbilityCooldownTimer > 0f)
         {
-            strikeCooldownTimer -= Time.deltaTime;
+            primaryAbilityCooldownTimer -= Time.deltaTime;
         }
     }
 
@@ -58,15 +119,15 @@ public class PlayerAbilityController : MonoBehaviour
 
         if (keyboard.digit1Key.wasPressedThisFrame || keyboard.numpad1Key.wasPressedThisFrame)
         {
-            TryUseStrike();
+            TryUsePrimaryAbility();
         }
     }
 
-    private void TryUseStrike()
+    private void TryUsePrimaryAbility()
     {
-        if (strikeCooldownTimer > 0f)
+        if (primaryAbilityCooldownTimer > 0f)
         {
-            Debug.Log($"Strike is on cooldown: {strikeCooldownTimer:0.0}s remaining.");
+            Debug.Log($"{primaryAbilityName} is on cooldown: {primaryAbilityCooldownTimer:0.0}s remaining.");
             return;
         }
 
@@ -86,7 +147,7 @@ public class PlayerAbilityController : MonoBehaviour
 
         float distanceToTarget = Vector2.Distance(transform.position, target.transform.position);
 
-        if (distanceToTarget > strikeRange)
+        if (distanceToTarget > primaryAbilityRange)
         {
             Debug.Log("Target is out of range.");
             return;
@@ -100,12 +161,12 @@ public class PlayerAbilityController : MonoBehaviour
             return;
         }
 
-        int totalDamage = strikeBaseDamage + GetBonusDamage();
+        int totalDamage = primaryAbilityBaseDamage + GetBonusDamage();
 
         targetHealth.TakeDamage(totalDamage, gameObject);
-        strikeCooldownTimer = strikeCooldownSeconds;
+        primaryAbilityCooldownTimer = primaryAbilityCooldownSeconds;
 
-        Debug.Log($"Used Strike on {target.EnemyName} for {totalDamage} damage.");
+        Debug.Log($"Used {primaryAbilityName} on {target.EnemyName} for {totalDamage} damage.");
     }
 
     private int GetBonusDamage()

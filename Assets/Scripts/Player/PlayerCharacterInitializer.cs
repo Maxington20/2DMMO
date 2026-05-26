@@ -6,6 +6,8 @@ public class PlayerCharacterInitializer : MonoBehaviour
     [SerializeField] private NameplateController playerNameplate;
     [SerializeField] private PlayerFrameUI playerFrameUI;
     [SerializeField] private CombatEntity combatEntity;
+    [SerializeField] private PlayerAbilityController abilityController;
+    [SerializeField] private ActionBarUI actionBarUI;
 
     private void Start()
     {
@@ -34,6 +36,16 @@ public class PlayerCharacterInitializer : MonoBehaviour
         if (combatEntity != null)
         {
             combatEntity.SetDisplayName(characterData.CharacterName);
+        }
+
+        if (abilityController != null)
+        {
+            abilityController.ConfigurePrimaryAbilityForClass(characterData.ClassName);
+        }
+
+        if (actionBarUI != null && abilityController != null)
+        {
+            actionBarUI.SetSlotOneAbilityName(abilityController.PrimaryAbilityName);
         }
 
         ChatManager.Instance?.AddSystemMessage(

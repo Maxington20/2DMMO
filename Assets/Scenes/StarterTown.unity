@@ -7512,11 +7512,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a26b99f99493624fbab819b72b01e52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAbilityController
-  targetingController: {fileID: 0}
-  playerEquipment: {fileID: 0}
-  strikeRange: 1.6
-  strikeBaseDamage: 10
-  strikeCooldownSeconds: 3
+  targetingController: {fileID: 1337210937}
+  playerEquipment: {fileID: 1337210943}
+  primaryAbilityName: Strike
+  primaryAbilityRange: 1.6
+  primaryAbilityBaseDamage: 10
+  primaryAbilityCooldownSeconds: 3
 --- !u!114 &1337210940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7617,6 +7618,8 @@ MonoBehaviour:
   playerNameplate: {fileID: 1420117733}
   playerFrameUI: {fileID: 311636868}
   combatEntity: {fileID: 1337210944}
+  abilityController: {fileID: 1337210939}
+  actionBarUI: {fileID: 1572121504}
 --- !u!1 &1358585718
 GameObject:
   m_ObjectHideFlags: 0
@@ -8962,6 +8965,7 @@ GameObject:
   - component: {fileID: 1572121502}
   - component: {fileID: 1572121501}
   - component: {fileID: 1572121503}
+  - component: {fileID: 1572121504}
   m_Layer: 5
   m_Name: ActionBar
   m_TagString: Untagged
@@ -9062,6 +9066,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1572121504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572121499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b15253ed4c9cada47927b97bf7089bd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActionBarUI
+  slotOneLabelText: {fileID: 1764958251}
 --- !u!1 &1577210896
 GameObject:
   m_ObjectHideFlags: 0
