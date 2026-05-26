@@ -27,6 +27,12 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private Button confirmCreateButton;
     [SerializeField] private Button cancelCreateButton;
 
+    [Header("Delete Confirmation")]
+    [SerializeField] private GameObject deleteConfirmationPanel;
+    [SerializeField] private TextMeshProUGUI deleteConfirmationText;
+    [SerializeField] private Button confirmDeleteButton;
+    [SerializeField] private Button cancelDeleteButton;
+
     private CharacterData selectedCharacter;
     private int selectedSlotIndex;
 
@@ -40,6 +46,8 @@ public class CharacterSelectUI : MonoBehaviour
         SetupDropdowns();
 
         HideCreationPanel();
+        HideDeleteConfirmationPanel();
+
         RefreshAllSlots();
         RefreshSelectedCharacterCard();
     }
@@ -76,7 +84,7 @@ public class CharacterSelectUI : MonoBehaviour
 
         if (deleteCharacterButton != null)
         {
-            deleteCharacterButton.onClick.AddListener(DeleteSelectedCharacter);
+            deleteCharacterButton.onClick.AddListener(ShowDeleteConfirmationPanel);
         }
 
         if (quitButton != null)
@@ -92,6 +100,16 @@ public class CharacterSelectUI : MonoBehaviour
         if (cancelCreateButton != null)
         {
             cancelCreateButton.onClick.AddListener(HideCreationPanel);
+        }
+
+        if (confirmDeleteButton != null)
+        {
+            confirmDeleteButton.onClick.AddListener(ConfirmDeleteSelectedCharacter);
+        }
+
+        if (cancelDeleteButton != null)
+        {
+            cancelDeleteButton.onClick.AddListener(HideDeleteConfirmationPanel);
         }
     }
 
@@ -134,6 +152,7 @@ public class CharacterSelectUI : MonoBehaviour
 
         selectedCharacter = CharacterSaveManager.LoadCharacter(selectedSlotIndex);
 
+        HideDeleteConfirmationPanel();
         RefreshAllSlots();
         RefreshSelectedCharacterCard();
     }
@@ -227,6 +246,8 @@ public class CharacterSelectUI : MonoBehaviour
 
     private void ShowCreationPanel()
     {
+        HideDeleteConfirmationPanel();
+
         if (creationPanel != null)
         {
             creationPanel.SetActive(true);
@@ -274,12 +295,37 @@ public class CharacterSelectUI : MonoBehaviour
         HideCreationPanel();
     }
 
-    private void DeleteSelectedCharacter()
+    private void ShowDeleteConfirmationPanel()
+    {
+        if (selectedCharacter == null || deleteConfirmationPanel == null)
+        {
+            return;
+        }
+
+        if (deleteConfirmationText != null)
+        {
+            deleteConfirmationText.text =
+                $"Delete {selectedCharacter.CharacterName}?\n\nThis cannot be undone.";
+        }
+
+        deleteConfirmationPanel.SetActive(true);
+    }
+
+    private void HideDeleteConfirmationPanel()
+    {
+        if (deleteConfirmationPanel != null)
+        {
+            deleteConfirmationPanel.SetActive(false);
+        }
+    }
+
+    private void ConfirmDeleteSelectedCharacter()
     {
         CharacterSaveManager.DeleteSavedCharacter(selectedSlotIndex);
 
         selectedCharacter = null;
 
+        HideDeleteConfirmationPanel();
         RefreshAllSlots();
         RefreshSelectedCharacterCard();
     }
