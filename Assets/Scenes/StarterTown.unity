@@ -7309,6 +7309,7 @@ GameObject:
   - component: {fileID: 1337210943}
   - component: {fileID: 1337210944}
   - component: {fileID: 1337210945}
+  - component: {fileID: 1337210946}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -7601,6 +7602,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerQuestLog
   activeQuest: {fileID: 0}
+--- !u!114 &1337210946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337210931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bab7eff4dce26da4f9c5b62082a01389, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCharacterInitializer
+  playerNameplate: {fileID: 1420117733}
+  playerFrameUI: {fileID: 311636868}
+  combatEntity: {fileID: 1337210944}
 --- !u!1 &1358585718
 GameObject:
   m_ObjectHideFlags: 0

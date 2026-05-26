@@ -18,4 +18,12 @@ public class CombatEntity : MonoBehaviour
     {
         health = GetComponent<Health>();
     }
+
+    public void SetDisplayName(string newDisplayName)
+    {
+        if (!string.IsNullOrWhiteSpace(newDisplayName))
+        {
+            displayName = newDisplayName;
+        }
+    }
 }

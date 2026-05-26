@@ -15,10 +15,7 @@ public class PlayerFrameUI : MonoBehaviour
 
     private void Start()
     {
-        if (playerNameText != null)
-        {
-            playerNameText.text = playerName;
-        }
+        RefreshName();
     }
 
     private void Update()
@@ -38,6 +35,20 @@ public class PlayerFrameUI : MonoBehaviour
         if (healthText != null)
         {
             healthText.text = $"{playerHealth.CurrentHealth} / {playerHealth.MaxHealth}";
+        }
+    }
+
+    public void SetPlayerName(string newName)
+    {
+        playerName = newName;
+        RefreshName();
+    }
+
+    private void RefreshName()
+    {
+        if (playerNameText != null)
+        {
+            playerNameText.text = playerName;
         }
     }
 }
