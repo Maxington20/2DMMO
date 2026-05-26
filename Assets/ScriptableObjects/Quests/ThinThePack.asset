@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1145e597825d5f74b951f03a3baa7f8a, type: 3}
   m_Name: ThinThePack
   m_EditorClassIdentifier: Assembly-CSharp::QuestDefinition
+  questId: thin_the_pack
   questName: Thin the Pack
   description: The wolves near the frontier road are getting aggressive. Thin their
     numbers before more travelers get hurt.

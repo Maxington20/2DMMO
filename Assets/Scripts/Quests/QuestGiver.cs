@@ -141,6 +141,12 @@ public class QuestGiver : MonoBehaviour
 
         playerQuestLog = questLog;
 
+        if (questLog.Status == QuestStatus.Completed)
+        {
+            ChatManager.Instance?.AddSystemMessage("Thane has nothing else for you right now.");
+            return;
+        }
+
         QuestInteractionWindow.Instance?.Show(this, questLog);
     }
 

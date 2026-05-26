@@ -7652,6 +7652,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a0f2408f5a793a4a9e098fdd5beab66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerQuestLog
+  starterQuest: {fileID: 11400000, guid: c651f290ef9b6d14ebcb18b96a1c0136, type: 2}
   activeQuest: {fileID: 0}
 --- !u!114 &1337210946
 MonoBehaviour:

@@ -14,6 +14,7 @@ public class CharacterData
 
     public List<SavedInventoryItem> InventoryItems = new();
     public List<SavedEquippedItem> EquippedItems = new();
+    public SavedQuestProgress QuestProgress;
 
     public CharacterData(string characterName, string species, string className)
     {
@@ -24,6 +25,7 @@ public class CharacterData
         CurrentXp = 0;
         XpToNextLevel = 100;
         StartingZone = "Frontier's Wake";
+        QuestProgress = null;
     }
 }
 
@@ -50,5 +52,20 @@ public class SavedEquippedItem
     {
         SlotType = slotType;
         ItemId = itemId;
+    }
+}
+
+[Serializable]
+public class SavedQuestProgress
+{
+    public string QuestId;
+    public int CurrentKills;
+    public string Status;
+
+    public SavedQuestProgress(string questId, int currentKills, string status)
+    {
+        QuestId = questId;
+        CurrentKills = currentKills;
+        Status = status;
     }
 }
