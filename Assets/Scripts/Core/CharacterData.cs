@@ -11,6 +11,7 @@ public class CharacterData
     public int CurrentXp;
     public int XpToNextLevel;
     public string StartingZone;
+    public int Copper;
 
     public List<SavedInventoryItem> InventoryItems = new();
     public List<SavedEquippedItem> EquippedItems = new();
@@ -25,6 +26,7 @@ public class CharacterData
         CurrentXp = 0;
         XpToNextLevel = 100;
         StartingZone = "Frontier's Wake";
+        Copper = 0;
         QuestProgress = null;
     }
 }
