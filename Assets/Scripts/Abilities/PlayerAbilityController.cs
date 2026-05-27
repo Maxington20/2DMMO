@@ -16,6 +16,9 @@ public class PlayerAbilityController : MonoBehaviour
     private float primaryAbilityCooldownTimer;
 
     public string PrimaryAbilityName => primaryAbilityName;
+    public float PrimaryAbilityCooldownTimer => primaryAbilityCooldownTimer;
+    public float PrimaryAbilityCooldownSeconds => primaryAbilityCooldownSeconds;
+    public bool IsPrimaryAbilityOnCooldown => primaryAbilityCooldownTimer > 0f;
 
     private void Awake()
     {
@@ -97,6 +100,7 @@ public class PlayerAbilityController : MonoBehaviour
                 break;
         }
 
+        primaryAbilityCooldownTimer = 0f;
         ChatManager.Instance?.AddSystemMessage($"Primary ability set to {primaryAbilityName}.");
     }
 
@@ -105,6 +109,11 @@ public class PlayerAbilityController : MonoBehaviour
         if (primaryAbilityCooldownTimer > 0f)
         {
             primaryAbilityCooldownTimer -= Time.deltaTime;
+
+            if (primaryAbilityCooldownTimer < 0f)
+            {
+                primaryAbilityCooldownTimer = 0f;
+            }
         }
     }
 
@@ -127,7 +136,6 @@ public class PlayerAbilityController : MonoBehaviour
     {
         if (primaryAbilityCooldownTimer > 0f)
         {
-            Debug.Log($"{primaryAbilityName} is on cooldown: {primaryAbilityCooldownTimer:0.0}s remaining.");
             return;
         }
 

@@ -1,6 +1,7 @@
 public enum ItemType
 {
+    None,
     Junk,
-    Consumable,
-    Equipment
+    Equipment,
+    Consumable
 }

@@ -55,6 +55,19 @@ public class Health : MonoBehaviour
         }
     }
 
+    public void Heal(int healAmount)
+    {
+        if (isDead || healAmount <= 0)
+        {
+            return;
+        }
+
+        currentHealth += healAmount;
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+
+        FloatingCombatTextSpawner.Instance?.SpawnDamageText(transform.position, healAmount);
+    }
+
     public void RestoreFullHealth()
     {
         currentHealth = maxHealth;
@@ -84,8 +97,6 @@ public class Health : MonoBehaviour
     private void Die()
     {
         isDead = true;
-
-        Debug.Log($"{gameObject.name} died.");
 
         if (CompareTag("Player"))
         {

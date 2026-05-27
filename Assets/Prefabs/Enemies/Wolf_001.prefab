@@ -262,4 +262,6 @@ MonoBehaviour:
     dropChance: 0.8
   - item: {fileID: 11400000, guid: 82be6e18140998841836c61b322c4a8b, type: 2}
     dropChance: 1
+  - item: {fileID: 11400000, guid: 0df43f8a86755734e820da358713962f, type: 2}
+    dropChance: 1
   lootPickupPrefab: {fileID: 5714656283737485895, guid: 2a8ada2f477e54748bd66ff88a486bd1, type: 3}
