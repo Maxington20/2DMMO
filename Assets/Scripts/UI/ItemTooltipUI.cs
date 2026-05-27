@@ -102,6 +102,11 @@ public class ItemTooltipUI : MonoBehaviour
             return $"{item.rarity} {item.equipmentSlot}";
         }
 
+        if (item.itemType == ItemType.Consumable)
+        {
+            return $"{item.rarity} Consumable";
+        }
+
         return item.rarity.ToString();
     }
 
@@ -119,6 +124,14 @@ public class ItemTooltipUI : MonoBehaviour
             if (item.bonusMaxHealth > 0)
             {
                 details += $"+{item.bonusMaxHealth} Max Health\n";
+            }
+        }
+
+        if (item.itemType == ItemType.Consumable)
+        {
+            if (item.restoreHealthAmount > 0)
+            {
+                details += $"Restores {item.restoreHealthAmount} health\n";
             }
         }
 

@@ -19,4 +19,7 @@ public class ItemDefinition : ScriptableObject
     [Header("Equipment Stats")]
     public int bonusMaxHealth;
     public int bonusDamage;
+
+    [Header("Consumable Stats")]
+    public int restoreHealthAmount;
 }
