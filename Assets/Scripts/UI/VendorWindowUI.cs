@@ -14,6 +14,10 @@ public class VendorWindowUI : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button closeButton;
 
+    [Header("Buy Items")]
+    [SerializeField] private RectTransform buyItemsParent;
+    [SerializeField] private VendorBuyItemUI buyItemPrefab;
+
     [Header("Sell Items")]
     [SerializeField] private RectTransform sellItemsParent;
     [SerializeField] private VendorSellItemUI sellItemPrefab;
@@ -21,12 +25,14 @@ public class VendorWindowUI : MonoBehaviour
     [Header("Row Layout")]
     [SerializeField] private float rowHeight = 54f;
     [SerializeField] private float rowSpacing = 6f;
-    [SerializeField] private float topPadding = 12f;
+    [SerializeField] private float topPadding = 8f;
 
+    private VendorNPC currentVendor;
     private PlayerInventory playerInventory;
     private PlayerCurrency playerCurrency;
 
-    private readonly List<VendorSellItemUI> spawnedRows = new();
+    private readonly List<VendorBuyItemUI> spawnedBuyRows = new();
+    private readonly List<VendorSellItemUI> spawnedSellRows = new();
 
     public static VendorWindowUI Instance { get; private set; }
 
@@ -48,7 +54,7 @@ public class VendorWindowUI : MonoBehaviour
 
         if (playerInventory != null)
         {
-            playerInventory.OnInventoryChanged -= RefreshSellItems;
+            playerInventory.OnInventoryChanged -= RefreshAllItems;
         }
     }
 
@@ -59,12 +65,14 @@ public class VendorWindowUI : MonoBehaviour
             return;
         }
 
+        currentVendor = vendor;
+
         FindPlayerReferences();
 
         if (playerInventory != null)
         {
-            playerInventory.OnInventoryChanged -= RefreshSellItems;
-            playerInventory.OnInventoryChanged += RefreshSellItems;
+            playerInventory.OnInventoryChanged -= RefreshAllItems;
+            playerInventory.OnInventoryChanged += RefreshAllItems;
         }
 
         root.SetActive(true);
@@ -75,7 +83,7 @@ public class VendorWindowUI : MonoBehaviour
             vendorNameText.text = vendor.VendorName;
         }
 
-        RefreshSellItems();
+        RefreshAllItems();
     }
 
     public void Hide()
@@ -89,8 +97,51 @@ public class VendorWindowUI : MonoBehaviour
 
         if (playerInventory != null)
         {
-            playerInventory.OnInventoryChanged -= RefreshSellItems;
+            playerInventory.OnInventoryChanged -= RefreshAllItems;
         }
+
+        currentVendor = null;
+    }
+
+    public void BuyItem(VendorStockItem stockItem)
+    {
+        if (stockItem == null || stockItem.item == null || playerInventory == null || playerCurrency == null)
+        {
+            return;
+        }
+
+        if (playerCurrency.Copper < stockItem.priceCopper)
+        {
+            ChatManager.Instance?.AddSystemMessage("You do not have enough copper.");
+            return;
+        }
+
+        if (!playerInventory.HasSpaceFor(stockItem.item))
+        {
+            ChatManager.Instance?.AddSystemMessage("Your inventory is full.");
+            return;
+        }
+
+        bool paid = playerCurrency.RemoveCopper(stockItem.priceCopper);
+
+        if (!paid)
+        {
+            return;
+        }
+
+        bool added = playerInventory.AddItem(stockItem.item, 1);
+
+        if (!added)
+        {
+            playerCurrency.AddCopper(stockItem.priceCopper);
+            return;
+        }
+
+        ChatManager.Instance?.AddSystemMessage(
+            $"Bought {stockItem.item.itemName} for {stockItem.priceCopper} copper."
+        );
+
+        RefreshAllItems();
     }
 
     public void SellItem(ItemDefinition item)
@@ -113,12 +164,53 @@ public class VendorWindowUI : MonoBehaviour
             $"Sold {item.itemName} for {item.sellValue} copper."
         );
 
+        RefreshAllItems();
+    }
+
+    private void RefreshAllItems()
+    {
+        RefreshBuyItems();
         RefreshSellItems();
+    }
+
+    private void RefreshBuyItems()
+    {
+        ClearBuyRows();
+
+        if (currentVendor == null || buyItemsParent == null || buyItemPrefab == null)
+        {
+            return;
+        }
+
+        VendorStockItem[] stock = currentVendor.StockItems;
+
+        if (stock == null)
+        {
+            return;
+        }
+
+        int rowIndex = 0;
+
+        foreach (VendorStockItem stockItem in stock)
+        {
+            if (stockItem == null || stockItem.item == null)
+            {
+                continue;
+            }
+
+            VendorBuyItemUI row = Instantiate(buyItemPrefab, buyItemsParent);
+            row.Initialize(stockItem, this);
+
+            PositionRow(row.GetComponent<RectTransform>(), rowIndex);
+
+            spawnedBuyRows.Add(row);
+            rowIndex++;
+        }
     }
 
     private void RefreshSellItems()
     {
-        ClearRows();
+        ClearSellRows();
 
         if (playerInventory == null || sellItemsParent == null || sellItemPrefab == null)
         {
@@ -137,28 +229,36 @@ public class VendorWindowUI : MonoBehaviour
             VendorSellItemUI row = Instantiate(sellItemPrefab, sellItemsParent);
             row.Initialize(item, this);
 
-            RectTransform rowRect = row.GetComponent<RectTransform>();
+            PositionRow(row.GetComponent<RectTransform>(), rowIndex);
 
-            rowRect.anchorMin = new Vector2(0f, 1f);
-            rowRect.anchorMax = new Vector2(1f, 1f);
-            rowRect.pivot = new Vector2(0.5f, 1f);
-
-            rowRect.offsetMin = new Vector2(12f, rowRect.offsetMin.y);
-            rowRect.offsetMax = new Vector2(-12f, rowRect.offsetMax.y);
-
-            float y = -topPadding - rowIndex * (rowHeight + rowSpacing);
-
-            rowRect.anchoredPosition = new Vector2(0f, y);
-            rowRect.sizeDelta = new Vector2(rowRect.sizeDelta.x, rowHeight);
-
-            spawnedRows.Add(row);
+            spawnedSellRows.Add(row);
             rowIndex++;
         }
     }
 
-    private void ClearRows()
+    private void PositionRow(RectTransform rowRect, int rowIndex)
     {
-        foreach (VendorSellItemUI row in spawnedRows)
+        if (rowRect == null)
+        {
+            return;
+        }
+
+        rowRect.anchorMin = new Vector2(0f, 1f);
+        rowRect.anchorMax = new Vector2(1f, 1f);
+        rowRect.pivot = new Vector2(0.5f, 1f);
+
+        rowRect.offsetMin = new Vector2(12f, rowRect.offsetMin.y);
+        rowRect.offsetMax = new Vector2(-12f, rowRect.offsetMax.y);
+
+        float y = -topPadding - rowIndex * (rowHeight + rowSpacing);
+
+        rowRect.anchoredPosition = new Vector2(0f, y);
+        rowRect.sizeDelta = new Vector2(rowRect.sizeDelta.x, rowHeight);
+    }
+
+    private void ClearBuyRows()
+    {
+        foreach (VendorBuyItemUI row in spawnedBuyRows)
         {
             if (row != null)
             {
@@ -166,7 +266,20 @@ public class VendorWindowUI : MonoBehaviour
             }
         }
 
-        spawnedRows.Clear();
+        spawnedBuyRows.Clear();
+    }
+
+    private void ClearSellRows()
+    {
+        foreach (VendorSellItemUI row in spawnedSellRows)
+        {
+            if (row != null)
+            {
+                Destroy(row.gameObject);
+            }
+        }
+
+        spawnedSellRows.Clear();
     }
 
     private void FindPlayerReferences()

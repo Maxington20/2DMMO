@@ -4,10 +4,17 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Collider2D))]
 public class VendorNPC : MonoBehaviour
 {
+    [Header("Vendor Info")]
     [SerializeField] private string vendorName = "Merchant";
+
+    [Header("Stock")]
+    [SerializeField] private VendorStockItem[] stockItems;
+
+    [Header("Interaction")]
     [SerializeField] private float interactionRange = 2f;
 
     public string VendorName => vendorName;
+    public VendorStockItem[] StockItems => stockItems;
 
     private void Update()
     {
