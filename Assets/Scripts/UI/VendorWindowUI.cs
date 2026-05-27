@@ -10,6 +10,7 @@ public class VendorWindowUI : MonoBehaviour
 
     [Header("Text")]
     [SerializeField] private TextMeshProUGUI vendorNameText;
+    [SerializeField] private TextMeshProUGUI vendorCopperText;
 
     [Header("Buttons")]
     [SerializeField] private Button closeButton;
@@ -56,6 +57,11 @@ public class VendorWindowUI : MonoBehaviour
         {
             playerInventory.OnInventoryChanged -= RefreshAllItems;
         }
+
+        if (playerCurrency != null)
+        {
+            playerCurrency.OnCurrencyChanged -= RefreshCopperText;
+        }
     }
 
     public void Show(VendorNPC vendor)
@@ -75,6 +81,12 @@ public class VendorWindowUI : MonoBehaviour
             playerInventory.OnInventoryChanged += RefreshAllItems;
         }
 
+        if (playerCurrency != null)
+        {
+            playerCurrency.OnCurrencyChanged -= RefreshCopperText;
+            playerCurrency.OnCurrencyChanged += RefreshCopperText;
+        }
+
         root.SetActive(true);
         GameplayInputLock.SetLocked(this, true);
 
@@ -83,6 +95,7 @@ public class VendorWindowUI : MonoBehaviour
             vendorNameText.text = vendor.VendorName;
         }
 
+        RefreshCopperText();
         RefreshAllItems();
     }
 
@@ -98,6 +111,11 @@ public class VendorWindowUI : MonoBehaviour
         if (playerInventory != null)
         {
             playerInventory.OnInventoryChanged -= RefreshAllItems;
+        }
+
+        if (playerCurrency != null)
+        {
+            playerCurrency.OnCurrencyChanged -= RefreshCopperText;
         }
 
         currentVendor = null;
@@ -142,6 +160,7 @@ public class VendorWindowUI : MonoBehaviour
         );
 
         RefreshAllItems();
+        RefreshCopperText();
     }
 
     public void SellItem(ItemDefinition item)
@@ -165,6 +184,18 @@ public class VendorWindowUI : MonoBehaviour
         );
 
         RefreshAllItems();
+        RefreshCopperText();
+    }
+
+    private void RefreshCopperText()
+    {
+        if (vendorCopperText == null)
+        {
+            return;
+        }
+
+        int copper = playerCurrency != null ? playerCurrency.Copper : 0;
+        vendorCopperText.text = $"Your Copper: {copper}";
     }
 
     private void RefreshAllItems()
