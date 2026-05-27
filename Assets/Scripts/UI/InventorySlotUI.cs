@@ -85,13 +85,29 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
             return;
         }
 
-        PlayerEquipment equipment = playerObject.GetComponent<PlayerEquipment>();
+        ItemDefinition item = currentItem.ItemDefinition;
 
-        if (equipment == null)
+        if (item.itemType == ItemType.Equipment)
         {
+            PlayerEquipment equipment = playerObject.GetComponent<PlayerEquipment>();
+
+            if (equipment != null)
+            {
+                equipment.Equip(item);
+            }
+
             return;
         }
 
-        equipment.Equip(currentItem.ItemDefinition);
+        if (item.itemType == ItemType.Consumable)
+        {
+            PlayerConsumableController consumables =
+                playerObject.GetComponent<PlayerConsumableController>();
+
+            if (consumables != null)
+            {
+                consumables.UseConsumable(item);
+            }
+        }
     }
 }

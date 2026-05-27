@@ -48,8 +48,61 @@ public class PlayerConsumableController : MonoBehaviour
 
         if (keyboard.digit2Key.wasPressedThisFrame || keyboard.numpad2Key.wasPressedThisFrame)
         {
-            UsePotion();
+            UseAssignedHealthPotion();
         }
+    }
+
+    public bool UseConsumable(ItemDefinition consumableItem)
+    {
+        if (consumableItem == null || consumableItem.itemType != ItemType.Consumable)
+        {
+            return false;
+        }
+
+        if (cooldownTimer > 0f)
+        {
+            ChatManager.Instance?.AddSystemMessage($"{consumableItem.itemName} is on cooldown.");
+            return false;
+        }
+
+        if (inventory == null || playerHealth == null)
+        {
+            return false;
+        }
+
+        bool removed = inventory.RemoveItem(consumableItem, 1);
+
+        if (!removed)
+        {
+            ChatManager.Instance?.AddSystemMessage($"You do not have {consumableItem.itemName}.");
+            return false;
+        }
+
+        if (consumableItem.restoreHealthAmount > 0)
+        {
+            playerHealth.Heal(consumableItem.restoreHealthAmount);
+
+            ChatManager.Instance?.AddSystemMessage(
+                $"You use {consumableItem.itemName} and restore {consumableItem.restoreHealthAmount} health."
+            );
+        }
+        else
+        {
+            ChatManager.Instance?.AddSystemMessage($"You use {consumableItem.itemName}.");
+        }
+
+        cooldownTimer = potionCooldownSeconds;
+        return true;
+    }
+
+    private void UseAssignedHealthPotion()
+    {
+        if (healthPotionItem == null)
+        {
+            return;
+        }
+
+        UseConsumable(healthPotionItem);
     }
 
     private void TickCooldown()
@@ -65,35 +118,5 @@ public class PlayerConsumableController : MonoBehaviour
         {
             cooldownTimer = 0f;
         }
-    }
-
-    private void UsePotion()
-    {
-        if (cooldownTimer > 0f)
-        {
-            return;
-        }
-
-        if (inventory == null || playerHealth == null || healthPotionItem == null)
-        {
-            return;
-        }
-
-        bool removed = inventory.RemoveItem(healthPotionItem, 1);
-
-        if (!removed)
-        {
-            ChatManager.Instance?.AddSystemMessage("You have no health potions.");
-            return;
-        }
-
-        int healAmount = Mathf.Max(0, healthPotionItem.restoreHealthAmount);
-
-        playerHealth.Heal(healAmount);
-        cooldownTimer = potionCooldownSeconds;
-
-        ChatManager.Instance?.AddSystemMessage(
-            $"You drink a {healthPotionItem.itemName} and heal {healAmount} health."
-        );
     }
 }
