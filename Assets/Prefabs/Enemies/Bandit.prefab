@@ -127,10 +127,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LootDropper
   lootTable:
-  - item: {fileID: 11400000, guid: 8aea64f99343d59489a14f3c93bbac1a, type: 2}
-    dropChance: 0.8
-  - item: {fileID: 11400000, guid: 82be6e18140998841836c61b322c4a8b, type: 2}
-    dropChance: 1
+  - item: {fileID: 11400000, guid: 37b4a268bd249a04a95d48d9359c5e62, type: 2}
+    dropChance: 0.75
+  - item: {fileID: 11400000, guid: 06f0f3240feaa524fa4e2a1b782cca4a, type: 2}
+    dropChance: 0.25
+  - item: {fileID: 11400000, guid: de660d163f64fc84fb14046f4a539852, type: 2}
+    dropChance: 0.25
+  - item: {fileID: 11400000, guid: 0df43f8a86755734e820da358713962f, type: 2}
+    dropChance: 0.25
   lootPickupPrefab: {fileID: 5714656283737485895, guid: 2a8ada2f477e54748bd66ff88a486bd1, type: 3}
 --- !u!1 &6952766663724027774
 GameObject:
