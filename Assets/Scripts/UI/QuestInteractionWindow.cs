@@ -86,34 +86,36 @@ public class QuestInteractionWindow : MonoBehaviour
 
         if (objectiveText != null)
         {
-            objectiveText.text = $"Objective: Defeat {quest.requiredKills} {quest.targetEnemyName}";
+            objectiveText.text = $"Objective:\nDefeat {quest.requiredKills} {quest.targetEnemyName}";
         }
 
         if (rewardText != null)
         {
-            string reward = $"Reward: {quest.xpReward} XP";
+            string rewards = "<b>Rewards</b>\n";
+
+            if (quest.xpReward > 0)
+            {
+                rewards += $"{quest.xpReward} XP\n";
+            }
 
             if (quest.copperReward > 0)
             {
-                reward += $" and {quest.copperReward} copper";
+                rewards += $"{quest.copperReward} Copper\n";
             }
 
-            rewardText.text = reward;
+            rewardText.text = rewards.TrimEnd();
         }
 
         QuestStatus status = questLog.GetQuestStatus(quest);
 
-        bool canAccept = status == QuestStatus.NotAccepted;
-        bool canComplete = status == QuestStatus.ReadyToTurnIn;
-
         if (acceptButton != null)
         {
-            acceptButton.gameObject.SetActive(canAccept);
+            acceptButton.gameObject.SetActive(status == QuestStatus.NotAccepted);
         }
 
         if (completeButton != null)
         {
-            completeButton.gameObject.SetActive(canComplete);
+            completeButton.gameObject.SetActive(status == QuestStatus.ReadyToTurnIn);
         }
     }
 
@@ -130,23 +132,15 @@ public class QuestInteractionWindow : MonoBehaviour
 
     private void AcceptQuest()
     {
-        if (currentQuestGiver == null)
-        {
-            return;
-        }
-
-        currentQuestGiver.AcceptQuestFromWindow();
+        currentQuestGiver?.AcceptQuestFromWindow();
         Hide();
     }
 
     private void CompleteQuest()
     {
-        if (currentQuestGiver == null)
-        {
-            return;
-        }
+        ChatManager.Instance?.AddSystemMessage("DEBUG: Complete button clicked.");
 
-        currentQuestGiver.CompleteQuestFromWindow();
+        currentQuestGiver?.CompleteQuestFromWindow();
         Hide();
     }
 }

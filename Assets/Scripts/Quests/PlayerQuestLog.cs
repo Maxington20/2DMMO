@@ -144,37 +144,40 @@ public class PlayerQuestLog : MonoBehaviour
     {
         if (quest == null || string.IsNullOrWhiteSpace(quest.questId))
         {
+            ChatManager.Instance?.AddSystemMessage("Could not turn in quest.");
             return;
         }
 
         if (!questStates.TryGetValue(quest.questId, out QuestRuntimeState state))
         {
+            ChatManager.Instance?.AddSystemMessage("You are not on that quest.");
             return;
         }
 
         if (state.Status != QuestStatus.ReadyToTurnIn)
         {
+            ChatManager.Instance?.AddSystemMessage("That quest is not ready to turn in.");
             return;
         }
 
         PlayerProgression progression = GetComponent<PlayerProgression>();
+        PlayerCurrency currency = GetComponent<PlayerCurrency>();
+
+        ChatManager.Instance?.AddSystemMessage($"Quest turned in: {quest.questName}");
 
         if (progression != null && quest.xpReward > 0)
         {
             progression.AddXp(quest.xpReward);
         }
 
-        PlayerCurrency currency = GetComponent<PlayerCurrency>();
-
         if (currency != null && quest.copperReward > 0)
         {
             currency.AddCopper(quest.copperReward);
+            ChatManager.Instance?.AddSystemMessage($"You received {quest.copperReward} copper.");
         }
 
         state.Status = QuestStatus.Completed;
         state.CurrentKills = quest.requiredKills;
-
-        ChatManager.Instance?.AddSystemMessage($"Quest turned in: {quest.questName}");
 
         SaveQuestProgress();
         OnQuestUpdated?.Invoke();
@@ -229,7 +232,6 @@ public class PlayerQuestLog : MonoBehaviour
             characterData.QuestProgressList = new List<SavedQuestProgress>();
         }
 
-        // Migrate old single quest save if present.
         if (characterData.QuestProgress != null && !string.IsNullOrWhiteSpace(characterData.QuestProgress.QuestId))
         {
             bool alreadyExists = characterData.QuestProgressList.Exists(q => q.QuestId == characterData.QuestProgress.QuestId);

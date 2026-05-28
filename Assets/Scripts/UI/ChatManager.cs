@@ -1,18 +1,22 @@
+using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChatManager : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private TextMeshProUGUI chatText;
+    [SerializeField] private ScrollRect chatScrollRect;
+    [SerializeField] private Transform contentParent;
+    [SerializeField] private ChatLineUI chatLinePrefab;
 
     [Header("Settings")]
-    [SerializeField] private int maxMessages = 40;
+    [SerializeField] private int maxMessages = 80;
+    [SerializeField] private float bottomThreshold = 0.05f;
 
     public static ChatManager Instance { get; private set; }
 
-    private readonly Queue<string> messages = new();
+    private readonly Queue<ChatLineUI> spawnedLines = new();
 
     private void Awake()
     {
@@ -21,21 +25,57 @@ public class ChatManager : MonoBehaviour
 
     public void AddMessage(ChatChannel channel, string sender, string message)
     {
+        bool shouldAutoScroll = IsAtBottom();
+
         string formattedMessage = FormatMessage(channel, sender, message);
 
-        messages.Enqueue(formattedMessage);
+        ChatLineUI line = Instantiate(chatLinePrefab, contentParent);
+        line.SetText(formattedMessage);
 
-        while (messages.Count > maxMessages)
+        spawnedLines.Enqueue(line);
+
+        while (spawnedLines.Count > maxMessages)
         {
-            messages.Dequeue();
+            ChatLineUI oldLine = spawnedLines.Dequeue();
+
+            if (oldLine != null)
+            {
+                Destroy(oldLine.gameObject);
+            }
         }
 
-        RefreshChatText();
+        if (shouldAutoScroll)
+        {
+            StartCoroutine(ScrollToBottomNextFrame());
+        }
     }
 
     public void AddSystemMessage(string message)
     {
         AddMessage(ChatChannel.System, "System", message);
+    }
+
+    private bool IsAtBottom()
+    {
+        if (chatScrollRect == null)
+        {
+            return true;
+        }
+
+        return chatScrollRect.verticalNormalizedPosition <= bottomThreshold;
+    }
+
+    private IEnumerator ScrollToBottomNextFrame()
+    {
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+
+        if (chatScrollRect != null)
+        {
+            chatScrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        Canvas.ForceUpdateCanvases();
     }
 
     private string FormatMessage(ChatChannel channel, string sender, string message)
@@ -79,15 +119,5 @@ public class ChatManager : MonoBehaviour
             ChatChannel.Whisper => "#FF8CDB",
             _ => "#FFFFFF"
         };
-    }
-
-    private void RefreshChatText()
-    {
-        if (chatText == null)
-        {
-            return;
-        }
-
-        chatText.text = string.Join("\n", messages);
     }
 }

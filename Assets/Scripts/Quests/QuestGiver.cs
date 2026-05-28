@@ -94,12 +94,7 @@ public class QuestGiver : MonoBehaviour
             TryFindQuestLog();
         }
 
-        if (playerQuestLog == null)
-        {
-            return;
-        }
-
-        playerQuestLog.AcceptQuest(questDefinition);
+        playerQuestLog?.AcceptQuest(questDefinition);
     }
 
     public void CompleteQuestFromWindow()
@@ -109,12 +104,7 @@ public class QuestGiver : MonoBehaviour
             TryFindQuestLog();
         }
 
-        if (playerQuestLog == null)
-        {
-            return;
-        }
-
-        playerQuestLog.TurnInQuest(questDefinition);
+        playerQuestLog?.TurnInQuest(questDefinition);
     }
 
     private void TryInteract()
