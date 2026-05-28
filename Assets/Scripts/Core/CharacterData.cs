@@ -15,7 +15,11 @@ public class CharacterData
 
     public List<SavedInventoryItem> InventoryItems = new();
     public List<SavedEquippedItem> EquippedItems = new();
+
+    // Kept for compatibility with older saves.
     public SavedQuestProgress QuestProgress;
+
+    public List<SavedQuestProgress> QuestProgressList = new();
 
     public CharacterData(string characterName, string species, string className)
     {
@@ -28,6 +32,7 @@ public class CharacterData
         StartingZone = "Frontier's Wake";
         Copper = 0;
         QuestProgress = null;
+        QuestProgressList = new List<SavedQuestProgress>();
     }
 }
 

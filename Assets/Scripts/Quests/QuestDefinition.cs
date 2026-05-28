@@ -16,4 +16,5 @@ public class QuestDefinition : ScriptableObject
 
     [Header("Rewards")]
     public int xpReward = 0;
+    public int copperReward = 0;
 }

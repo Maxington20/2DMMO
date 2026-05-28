@@ -72,12 +72,14 @@ public class QuestGiver : MonoBehaviour
             return QuestIndicatorState.None;
         }
 
-        if (playerQuestLog.IsReadyToTurnIn)
+        QuestStatus status = playerQuestLog.GetQuestStatus(questDefinition);
+
+        if (status == QuestStatus.ReadyToTurnIn)
         {
             return QuestIndicatorState.ReadyToTurnIn;
         }
 
-        if (!playerQuestLog.HasActiveQuest && playerQuestLog.Status != QuestStatus.Completed)
+        if (status == QuestStatus.NotAccepted)
         {
             return QuestIndicatorState.Available;
         }
@@ -112,7 +114,7 @@ public class QuestGiver : MonoBehaviour
             return;
         }
 
-        playerQuestLog.TurnInQuest();
+        playerQuestLog.TurnInQuest(questDefinition);
     }
 
     private void TryInteract()
@@ -141,9 +143,11 @@ public class QuestGiver : MonoBehaviour
 
         playerQuestLog = questLog;
 
-        if (questLog.Status == QuestStatus.Completed)
+        QuestStatus status = questLog.GetQuestStatus(questDefinition);
+
+        if (status == QuestStatus.Completed)
         {
-            ChatManager.Instance?.AddSystemMessage("Thane has nothing else for you right now.");
+            ChatManager.Instance?.AddSystemMessage($"{displayName} has nothing else for you right now.");
             return;
         }
 

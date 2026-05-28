@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1145e597825d5f74b951f03a3baa7f8a, type: 3}
+  m_Name: RoadsideTrouble
+  m_EditorClassIdentifier: Assembly-CSharp::QuestDefinition
+  questId: roadside_trouble
+  questName: Roadside Trouble
+  description: Bandits have been harassing travelers near the road. Deal with them
+    before someone gets hurt.
+  targetEnemyName: Bandit
+  requiredKills: 3
+  xpReward: 120
+  copperReward: 25

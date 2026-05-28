@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -34,9 +36,9 @@ public class QuestTrackerUI : MonoBehaviour
             return;
         }
 
-        QuestDefinition quest = questLog.ActiveQuest;
+        List<QuestRuntimeState> visibleQuests = questLog.GetVisibleQuests();
 
-        if (quest == null || questLog.Status == QuestStatus.Completed)
+        if (visibleQuests.Count == 0)
         {
             trackerPanel.SetActive(false);
             return;
@@ -46,16 +48,38 @@ public class QuestTrackerUI : MonoBehaviour
 
         if (titleText != null)
         {
-            titleText.text = quest.questName;
+            titleText.text = visibleQuests.Count == 1 ? visibleQuests[0].Quest.questName : "Quests";
         }
 
         if (objectiveText != null)
         {
-            string statusText = questLog.Status == QuestStatus.ReadyToTurnIn
-                ? "Return to Thane"
-                : $"Defeat {quest.targetEnemyName}: {questLog.CurrentKills} / {quest.requiredKills}";
+            StringBuilder builder = new();
 
-            objectiveText.text = statusText;
+            foreach (QuestRuntimeState state in visibleQuests)
+            {
+                if (state == null || state.Quest == null)
+                {
+                    continue;
+                }
+
+                if (visibleQuests.Count > 1)
+                {
+                    builder.AppendLine($"<b>{state.Quest.questName}</b>");
+                }
+
+                if (state.Status == QuestStatus.ReadyToTurnIn)
+                {
+                    builder.AppendLine("Return to quest giver");
+                }
+                else
+                {
+                    builder.AppendLine($"Defeat {state.Quest.targetEnemyName}: {state.CurrentKills} / {state.Quest.requiredKills}");
+                }
+
+                builder.AppendLine();
+            }
+
+            objectiveText.text = builder.ToString().TrimEnd();
         }
     }
 }

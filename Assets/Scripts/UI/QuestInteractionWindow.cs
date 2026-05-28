@@ -91,11 +91,20 @@ public class QuestInteractionWindow : MonoBehaviour
 
         if (rewardText != null)
         {
-            rewardText.text = $"Reward: {quest.xpReward} XP";
+            string reward = $"Reward: {quest.xpReward} XP";
+
+            if (quest.copperReward > 0)
+            {
+                reward += $" and {quest.copperReward} copper";
+            }
+
+            rewardText.text = reward;
         }
 
-        bool canAccept = !questLog.HasActiveQuest && questLog.Status != QuestStatus.Completed;
-        bool canComplete = questLog.IsReadyToTurnIn;
+        QuestStatus status = questLog.GetQuestStatus(quest);
+
+        bool canAccept = status == QuestStatus.NotAccepted;
+        bool canComplete = status == QuestStatus.ReadyToTurnIn;
 
         if (acceptButton != null)
         {

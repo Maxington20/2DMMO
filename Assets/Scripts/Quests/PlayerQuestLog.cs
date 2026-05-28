@@ -1,48 +1,86 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerQuestLog : MonoBehaviour
 {
-    [Header("Available Quest")]
-    [SerializeField] private QuestDefinition starterQuest;
+    [Header("Available Quests")]
+    [SerializeField] private QuestDefinition[] availableQuests;
 
-    [Header("Runtime Quest")]
-    [SerializeField] private QuestDefinition activeQuest;
-
-    private int currentKills;
-    private QuestStatus status = QuestStatus.NotAccepted;
-
-    public QuestDefinition ActiveQuest => activeQuest;
-    public int CurrentKills => currentKills;
-    public QuestStatus Status => status;
+    private readonly Dictionary<string, QuestRuntimeState> questStates = new();
 
     public event Action OnQuestUpdated;
 
-    public bool HasActiveQuest => activeQuest != null && status == QuestStatus.InProgress;
-    public bool IsReadyToTurnIn => activeQuest != null && status == QuestStatus.ReadyToTurnIn;
-    public bool HasCompletedStarterQuest => status == QuestStatus.Completed;
+    public IReadOnlyDictionary<string, QuestRuntimeState> QuestStates => questStates;
 
     private void Start()
     {
         LoadQuestProgress();
+        OnQuestUpdated?.Invoke();
+    }
+
+    public QuestStatus GetQuestStatus(QuestDefinition quest)
+    {
+        if (quest == null || string.IsNullOrWhiteSpace(quest.questId))
+        {
+            return QuestStatus.NotAccepted;
+        }
+
+        if (!questStates.TryGetValue(quest.questId, out QuestRuntimeState state))
+        {
+            return QuestStatus.NotAccepted;
+        }
+
+        return state.Status;
+    }
+
+    public int GetCurrentKills(QuestDefinition quest)
+    {
+        if (quest == null || string.IsNullOrWhiteSpace(quest.questId))
+        {
+            return 0;
+        }
+
+        if (!questStates.TryGetValue(quest.questId, out QuestRuntimeState state))
+        {
+            return 0;
+        }
+
+        return state.CurrentKills;
+    }
+
+    public bool HasActiveQuest => HasAnyQuestWithStatus(QuestStatus.InProgress);
+    public bool IsReadyToTurnIn => HasAnyQuestWithStatus(QuestStatus.ReadyToTurnIn);
+
+    public bool CanAcceptQuest(QuestDefinition quest)
+    {
+        return quest != null && GetQuestStatus(quest) == QuestStatus.NotAccepted;
+    }
+
+    public bool CanTurnInQuest(QuestDefinition quest)
+    {
+        return quest != null && GetQuestStatus(quest) == QuestStatus.ReadyToTurnIn;
     }
 
     public void AcceptQuest(QuestDefinition quest)
     {
-        if (quest == null)
+        if (quest == null || string.IsNullOrWhiteSpace(quest.questId))
         {
             return;
         }
 
-        if (activeQuest != null && status != QuestStatus.Completed)
+        if (!CanAcceptQuest(quest))
         {
-            ChatManager.Instance?.AddSystemMessage("You already have an active quest.");
+            ChatManager.Instance?.AddSystemMessage("You cannot accept that quest right now.");
             return;
         }
 
-        activeQuest = quest;
-        currentKills = 0;
-        status = QuestStatus.InProgress;
+        questStates[quest.questId] = new QuestRuntimeState
+        {
+            Quest = quest,
+            CurrentKills = 0,
+            Status = QuestStatus.InProgress
+        };
 
         ChatManager.Instance?.AddSystemMessage($"Quest accepted: {quest.questName}");
 
@@ -52,94 +90,184 @@ public class PlayerQuestLog : MonoBehaviour
 
     public void RegisterEnemyKill(Enemy enemy)
     {
-        if (enemy == null || activeQuest == null || status != QuestStatus.InProgress)
+        if (enemy == null)
         {
             return;
         }
 
-        if (enemy.EnemyName != activeQuest.targetEnemyName)
+        bool updated = false;
+
+        foreach (QuestRuntimeState state in questStates.Values)
         {
-            return;
+            if (state == null || state.Quest == null)
+            {
+                continue;
+            }
+
+            if (state.Status != QuestStatus.InProgress)
+            {
+                continue;
+            }
+
+            if (enemy.EnemyName != state.Quest.targetEnemyName)
+            {
+                continue;
+            }
+
+            state.CurrentKills++;
+            state.CurrentKills = Mathf.Clamp(state.CurrentKills, 0, state.Quest.requiredKills);
+
+            ChatManager.Instance?.AddSystemMessage(
+                $"{state.Quest.questName}: {state.CurrentKills}/{state.Quest.requiredKills} {state.Quest.targetEnemyName} defeated."
+            );
+
+            if (state.CurrentKills >= state.Quest.requiredKills)
+            {
+                state.Status = QuestStatus.ReadyToTurnIn;
+
+                ChatManager.Instance?.AddSystemMessage(
+                    $"Quest complete: {state.Quest.questName}. Return to the quest giver."
+                );
+            }
+
+            updated = true;
         }
 
-        currentKills++;
-
-        ChatManager.Instance?.AddSystemMessage(
-            $"{activeQuest.questName}: {currentKills}/{activeQuest.requiredKills} {activeQuest.targetEnemyName} defeated."
-        );
-
-        if (currentKills >= activeQuest.requiredKills)
+        if (updated)
         {
-            currentKills = activeQuest.requiredKills;
-            status = QuestStatus.ReadyToTurnIn;
-
-            ChatManager.Instance?.AddSystemMessage($"Quest complete: {activeQuest.questName}. Return to the quest giver.");
+            SaveQuestProgress();
+            OnQuestUpdated?.Invoke();
         }
-
-        SaveQuestProgress();
-        OnQuestUpdated?.Invoke();
     }
 
-    public void TurnInQuest()
+    public void TurnInQuest(QuestDefinition quest)
     {
-        if (activeQuest == null || status != QuestStatus.ReadyToTurnIn)
+        if (quest == null || string.IsNullOrWhiteSpace(quest.questId))
+        {
+            return;
+        }
+
+        if (!questStates.TryGetValue(quest.questId, out QuestRuntimeState state))
+        {
+            return;
+        }
+
+        if (state.Status != QuestStatus.ReadyToTurnIn)
         {
             return;
         }
 
         PlayerProgression progression = GetComponent<PlayerProgression>();
 
-        if (progression != null && activeQuest.xpReward > 0)
+        if (progression != null && quest.xpReward > 0)
         {
-            progression.AddXp(activeQuest.xpReward);
+            progression.AddXp(quest.xpReward);
         }
 
-        ChatManager.Instance?.AddSystemMessage($"Quest turned in: {activeQuest.questName}");
+        PlayerCurrency currency = GetComponent<PlayerCurrency>();
 
-        status = QuestStatus.Completed;
-        currentKills = 0;
+        if (currency != null && quest.copperReward > 0)
+        {
+            currency.AddCopper(quest.copperReward);
+        }
+
+        state.Status = QuestStatus.Completed;
+        state.CurrentKills = quest.requiredKills;
+
+        ChatManager.Instance?.AddSystemMessage($"Quest turned in: {quest.questName}");
 
         SaveQuestProgress();
-
-        activeQuest = null;
-
         OnQuestUpdated?.Invoke();
+    }
+
+    public List<QuestRuntimeState> GetVisibleQuests()
+    {
+        List<QuestRuntimeState> visibleQuests = new();
+
+        foreach (QuestRuntimeState state in questStates.Values)
+        {
+            if (state == null || state.Quest == null)
+            {
+                continue;
+            }
+
+            if (state.Status == QuestStatus.InProgress || state.Status == QuestStatus.ReadyToTurnIn)
+            {
+                visibleQuests.Add(state);
+            }
+        }
+
+        return visibleQuests;
+    }
+
+    private bool HasAnyQuestWithStatus(QuestStatus targetStatus)
+    {
+        foreach (QuestRuntimeState state in questStates.Values)
+        {
+            if (state != null && state.Status == targetStatus)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void LoadQuestProgress()
     {
+        questStates.Clear();
+
         CharacterData characterData = CharacterSaveManager.LoadCharacter();
 
-        if (characterData == null || characterData.QuestProgress == null)
+        if (characterData == null)
         {
             return;
         }
 
-        SavedQuestProgress savedQuest = characterData.QuestProgress;
-
-        if (starterQuest == null || starterQuest.questId != savedQuest.QuestId)
+        if (characterData.QuestProgressList == null)
         {
-            return;
+            characterData.QuestProgressList = new List<SavedQuestProgress>();
         }
 
-        if (!Enum.TryParse(savedQuest.Status, out QuestStatus loadedStatus))
+        // Migrate old single quest save if present.
+        if (characterData.QuestProgress != null && !string.IsNullOrWhiteSpace(characterData.QuestProgress.QuestId))
         {
-            loadedStatus = QuestStatus.NotAccepted;
+            bool alreadyExists = characterData.QuestProgressList.Exists(q => q.QuestId == characterData.QuestProgress.QuestId);
+
+            if (!alreadyExists)
+            {
+                characterData.QuestProgressList.Add(characterData.QuestProgress);
+            }
         }
 
-        status = loadedStatus;
-        currentKills = Mathf.Clamp(savedQuest.CurrentKills, 0, starterQuest.requiredKills);
-
-        if (status == QuestStatus.InProgress || status == QuestStatus.ReadyToTurnIn)
+        foreach (SavedQuestProgress savedQuest in characterData.QuestProgressList)
         {
-            activeQuest = starterQuest;
-        }
-        else
-        {
-            activeQuest = null;
+            if (savedQuest == null || string.IsNullOrWhiteSpace(savedQuest.QuestId))
+            {
+                continue;
+            }
+
+            QuestDefinition quest = FindAvailableQuest(savedQuest.QuestId);
+
+            if (quest == null)
+            {
+                continue;
+            }
+
+            if (!Enum.TryParse(savedQuest.Status, out QuestStatus loadedStatus))
+            {
+                loadedStatus = QuestStatus.NotAccepted;
+            }
+
+            questStates[quest.questId] = new QuestRuntimeState
+            {
+                Quest = quest,
+                CurrentKills = Mathf.Clamp(savedQuest.CurrentKills, 0, quest.requiredKills),
+                Status = loadedStatus
+            };
         }
 
-        OnQuestUpdated?.Invoke();
+        SaveQuestProgress();
     }
 
     private void SaveQuestProgress()
@@ -151,19 +279,55 @@ public class PlayerQuestLog : MonoBehaviour
             return;
         }
 
-        QuestDefinition questToSave = activeQuest != null ? activeQuest : starterQuest;
-
-        if (questToSave == null || string.IsNullOrWhiteSpace(questToSave.questId))
+        if (characterData.QuestProgressList == null)
         {
-            return;
+            characterData.QuestProgressList = new List<SavedQuestProgress>();
         }
 
-        characterData.QuestProgress = new SavedQuestProgress(
-            questToSave.questId,
-            currentKills,
-            status.ToString()
-        );
+        characterData.QuestProgressList.Clear();
+
+        foreach (QuestRuntimeState state in questStates.Values)
+        {
+            if (state == null || state.Quest == null || string.IsNullOrWhiteSpace(state.Quest.questId))
+            {
+                continue;
+            }
+
+            characterData.QuestProgressList.Add(
+                new SavedQuestProgress(
+                    state.Quest.questId,
+                    state.CurrentKills,
+                    state.Status.ToString()
+                )
+            );
+        }
 
         CharacterSaveManager.SaveCharacter(characterData);
     }
+
+    private QuestDefinition FindAvailableQuest(string questId)
+    {
+        if (availableQuests == null)
+        {
+            return null;
+        }
+
+        foreach (QuestDefinition quest in availableQuests)
+        {
+            if (quest != null && quest.questId == questId)
+            {
+                return quest;
+            }
+        }
+
+        return null;
+    }
+}
+
+[Serializable]
+public class QuestRuntimeState
+{
+    public QuestDefinition Quest;
+    public int CurrentKills;
+    public QuestStatus Status;
 }
