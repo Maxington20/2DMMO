@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(FakePlayerIdentity))]
 public class FakePlayerQuestController : MonoBehaviour
 {
     private enum FakeQuestState
@@ -20,10 +21,6 @@ public class FakePlayerQuestController : MonoBehaviour
     [SerializeField] private Transform huntArea;
     [SerializeField] private bool repeatQuest = false;
 
-    [Header("Fake Player Identity")]
-    [SerializeField] private string fakePlayerName = "Fake Player";
-    [SerializeField] private FakePlayerPersonalityType personalityType = FakePlayerPersonalityType.Casual;
-
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
     [SerializeField] private float arrivalDistance = 0.15f;
@@ -40,6 +37,7 @@ public class FakePlayerQuestController : MonoBehaviour
     [SerializeField] private bool chatterEnabled = true;
 
     private Rigidbody2D rb;
+    private FakePlayerIdentity identity;
     private FakePlayerCombatController combatController;
     private FakePlayerController wanderController;
 
@@ -51,6 +49,7 @@ public class FakePlayerQuestController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        identity = GetComponent<FakePlayerIdentity>();
         combatController = GetComponent<FakePlayerCombatController>();
         wanderController = GetComponent<FakePlayerController>();
     }
@@ -122,7 +121,7 @@ public class FakePlayerQuestController : MonoBehaviour
 
         if (announceQuestProgress)
         {
-            Say(GetProgressMessage());
+            Say(identity.GetProgressMessage(questDefinition, currentKills));
         }
 
         if (currentKills >= questDefinition.requiredKills)
@@ -175,9 +174,9 @@ public class FakePlayerQuestController : MonoBehaviour
 
         SayRandom(GetTurnInMessages());
 
-        if (questDefinition.xpReward > 0)
+        if (questDefinition != null && questDefinition.xpReward > 0)
         {
-            Say(GetXpMessage());
+            Say(identity.GetXpMessage(questDefinition));
         }
 
         SetState(FakeQuestState.Resting);
@@ -293,50 +292,22 @@ public class FakePlayerQuestController : MonoBehaviour
 
     private void Say(string message)
     {
-        if (!chatterEnabled || string.IsNullOrWhiteSpace(message))
+        if (!chatterEnabled || identity == null || string.IsNullOrWhiteSpace(message))
         {
             return;
         }
 
-        ChatManager.Instance?.AddMessage(ChatChannel.Zone, fakePlayerName, message);
-    }
-
-    private string GetProgressMessage()
-    {
-        return personalityType switch
-        {
-            FakePlayerPersonalityType.Helpful =>
-                $"{questDefinition.questName}: {currentKills}/{questDefinition.requiredKills} done if anyone is tracking",
-
-            FakePlayerPersonalityType.Grumpy =>
-                $"{currentKills}/{questDefinition.requiredKills}. this is taking forever",
-
-            FakePlayerPersonalityType.Tryhard =>
-                $"{currentKills}/{questDefinition.requiredKills}. efficient route so far",
-
-            FakePlayerPersonalityType.Newbie =>
-                $"i got {currentKills}/{questDefinition.requiredKills}, is that good?",
-
-            _ =>
-                $"{questDefinition.questName}: {currentKills}/{questDefinition.requiredKills} {questDefinition.targetEnemyName} defeated."
-        };
-    }
-
-    private string GetXpMessage()
-    {
-        return personalityType switch
-        {
-            FakePlayerPersonalityType.Helpful => $"got {questDefinition.xpReward} XP from that quest",
-            FakePlayerPersonalityType.Grumpy => $"only {questDefinition.xpReward} XP? alright whatever",
-            FakePlayerPersonalityType.Tryhard => $"+{questDefinition.xpReward} XP. moving on",
-            FakePlayerPersonalityType.Newbie => $"wait nice, i got {questDefinition.xpReward} XP",
-            _ => $"gained {questDefinition.xpReward} XP."
-        };
+        identity.Say(message);
     }
 
     private string[] GetAcceptQuestMessages()
     {
-        return personalityType switch
+        if (questDefinition == null)
+        {
+            return new[] { "grabbing a quest" };
+        }
+
+        return identity.PersonalityType switch
         {
             FakePlayerPersonalityType.Helpful => new[]
             {
@@ -349,7 +320,7 @@ public class FakePlayerQuestController : MonoBehaviour
             {
                 $"ugh, doing {questDefinition.questName}",
                 "fine, grabbing this quest",
-                "hope the drop/spawn rate isn't trash"
+                "hope the spawn rate isn't trash"
             },
 
             FakePlayerPersonalityType.Tryhard => new[]
@@ -378,7 +349,12 @@ public class FakePlayerQuestController : MonoBehaviour
 
     private string[] GetHuntingMessages()
     {
-        return personalityType switch
+        if (questDefinition == null)
+        {
+            return identity.GetIdleMessages();
+        }
+
+        return identity.PersonalityType switch
         {
             FakePlayerPersonalityType.Helpful => new[]
             {
@@ -424,7 +400,7 @@ public class FakePlayerQuestController : MonoBehaviour
 
     private string[] GetQuestCompleteMessages()
     {
-        return personalityType switch
+        return identity.PersonalityType switch
         {
             FakePlayerPersonalityType.Helpful => new[]
             {
@@ -466,7 +442,12 @@ public class FakePlayerQuestController : MonoBehaviour
 
     private string[] GetTurnInMessages()
     {
-        return personalityType switch
+        if (questDefinition == null)
+        {
+            return new[] { "quest turned in" };
+        }
+
+        return identity.PersonalityType switch
         {
             FakePlayerPersonalityType.Helpful => new[]
             {
@@ -508,43 +489,6 @@ public class FakePlayerQuestController : MonoBehaviour
 
     private string[] GetRestMessages()
     {
-        return personalityType switch
-        {
-            FakePlayerPersonalityType.Helpful => new[]
-            {
-                "going to help around town for a bit",
-                "taking a break, whisper if you need help",
-                "back in town now"
-            },
-
-            FakePlayerPersonalityType.Grumpy => new[]
-            {
-                "taking a break from this grind",
-                "enough questing for now",
-                "wandering until something better shows up"
-            },
-
-            FakePlayerPersonalityType.Tryhard => new[]
-            {
-                "resetting route",
-                "checking next objective",
-                "downtime phase"
-            },
-
-            FakePlayerPersonalityType.Newbie => new[]
-            {
-                "i'm just gonna wander now",
-                "what should i do next?",
-                "still learning this zone"
-            },
-
-            _ => new[]
-            {
-                "gonna wander for a bit",
-                "taking a break from questing",
-                "back to town stuff",
-                "might do another quest later"
-            }
-        };
+        return identity.GetIdleMessages();
     }
 }
