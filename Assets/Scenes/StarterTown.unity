@@ -8569,6 +8569,8 @@ MonoBehaviour:
   questGiver: {fileID: 940197525}
   huntArea: {fileID: 1832682056}
   repeatQuest: 0
+  fakePlayerName: Kev the Fake
+  personalityType: 2
   moveSpeed: 2.5
   arrivalDistance: 0.15
   acceptDelaySeconds: 1.5
@@ -8576,7 +8578,6 @@ MonoBehaviour:
   restDelaySeconds: 8
   huntingCommentIntervalMin: 10
   huntingCommentIntervalMax: 20
-  fakePlayerName: Kev the Fake
   announceQuestProgress: 1
   chatterEnabled: 1
 --- !u!1 &1237856139

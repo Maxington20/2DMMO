@@ -20,6 +20,10 @@ public class FakePlayerQuestController : MonoBehaviour
     [SerializeField] private Transform huntArea;
     [SerializeField] private bool repeatQuest = false;
 
+    [Header("Fake Player Identity")]
+    [SerializeField] private string fakePlayerName = "Fake Player";
+    [SerializeField] private FakePlayerPersonalityType personalityType = FakePlayerPersonalityType.Casual;
+
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
     [SerializeField] private float arrivalDistance = 0.15f;
@@ -32,7 +36,6 @@ public class FakePlayerQuestController : MonoBehaviour
     [SerializeField] private float huntingCommentIntervalMax = 20f;
 
     [Header("Chat")]
-    [SerializeField] private string fakePlayerName = "Fake Player";
     [SerializeField] private bool announceQuestProgress = true;
     [SerializeField] private bool chatterEnabled = true;
 
@@ -119,23 +122,12 @@ public class FakePlayerQuestController : MonoBehaviour
 
         if (announceQuestProgress)
         {
-            ChatManager.Instance?.AddMessage(
-                ChatChannel.Zone,
-                fakePlayerName,
-                $"{questDefinition.questName}: {currentKills}/{questDefinition.requiredKills} {questDefinition.targetEnemyName} defeated."
-            );
+            Say(GetProgressMessage());
         }
 
         if (currentKills >= questDefinition.requiredKills)
         {
-            SayRandom(new[]
-            {
-                "done with this one, heading back",
-                "quest complete, turning it in",
-                "finally done lol",
-                "easy enough, going back to town"
-            });
-
+            SayRandom(GetQuestCompleteMessages());
             SetState(FakeQuestState.ReturningToQuestGiver);
         }
     }
@@ -151,13 +143,7 @@ public class FakePlayerQuestController : MonoBehaviour
 
         currentKills = 0;
 
-        SayRandom(new[]
-        {
-            $"grabbing {questDefinition.questName}",
-            $"picking up {questDefinition.questName}",
-            "taking this quest real quick",
-            "quest accepted, heading out"
-        });
+        SayRandom(GetAcceptQuestMessages());
 
         SetState(FakeQuestState.TravelingToHuntArea);
     }
@@ -173,15 +159,7 @@ public class FakePlayerQuestController : MonoBehaviour
 
         if (huntingCommentTimer <= 0f)
         {
-            SayRandom(new[]
-            {
-                $"these {questDefinition.targetEnemyName.ToLower()}s are everywhere",
-                "pulling another one",
-                "almost done here",
-                "this spawn rate is actually decent",
-                "anyone else doing this quest?"
-            });
-
+            SayRandom(GetHuntingMessages());
             ResetHuntingCommentTimer();
         }
     }
@@ -195,21 +173,11 @@ public class FakePlayerQuestController : MonoBehaviour
             return;
         }
 
-        SayRandom(new[]
-        {
-            $"turned in {questDefinition.questName}",
-            "nice, free XP",
-            "quest done",
-            "easy turn-in"
-        });
+        SayRandom(GetTurnInMessages());
 
         if (questDefinition.xpReward > 0)
         {
-            ChatManager.Instance?.AddMessage(
-                ChatChannel.Zone,
-                fakePlayerName,
-                $"gained {questDefinition.xpReward} XP."
-            );
+            Say(GetXpMessage());
         }
 
         SetState(FakeQuestState.Resting);
@@ -230,13 +198,7 @@ public class FakePlayerQuestController : MonoBehaviour
             return;
         }
 
-        SayRandom(new[]
-        {
-            "gonna wander for a bit",
-            "taking a break from questing",
-            "back to town stuff",
-            "might do another quest later"
-        });
+        SayRandom(GetRestMessages());
 
         if (wanderController != null)
         {
@@ -269,9 +231,7 @@ public class FakePlayerQuestController : MonoBehaviour
             return;
         }
 
-        Vector2 nextPosition =
-            currentPosition + direction.normalized * moveSpeed * Time.fixedDeltaTime;
-
+        Vector2 nextPosition = currentPosition + direction.normalized * moveSpeed * Time.fixedDeltaTime;
         rb.MovePosition(nextPosition);
     }
 
@@ -284,8 +244,7 @@ public class FakePlayerQuestController : MonoBehaviour
             currentState == FakeQuestState.TravelingToHuntArea ||
             currentState == FakeQuestState.ReturningToQuestGiver;
 
-        bool shouldUseCombat =
-            currentState == FakeQuestState.Hunting;
+        bool shouldUseCombat = currentState == FakeQuestState.Hunting;
 
         if (wanderController != null)
         {
@@ -324,17 +283,268 @@ public class FakePlayerQuestController : MonoBehaviour
 
     private void SayRandom(string[] messages)
     {
-        if (!chatterEnabled || messages == null || messages.Length == 0)
+        if (messages == null || messages.Length == 0)
         {
             return;
         }
 
-        string message = messages[Random.Range(0, messages.Length)];
+        Say(messages[Random.Range(0, messages.Length)]);
+    }
 
-        ChatManager.Instance?.AddMessage(
-            ChatChannel.Zone,
-            fakePlayerName,
-            message
-        );
+    private void Say(string message)
+    {
+        if (!chatterEnabled || string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        ChatManager.Instance?.AddMessage(ChatChannel.Zone, fakePlayerName, message);
+    }
+
+    private string GetProgressMessage()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful =>
+                $"{questDefinition.questName}: {currentKills}/{questDefinition.requiredKills} done if anyone is tracking",
+
+            FakePlayerPersonalityType.Grumpy =>
+                $"{currentKills}/{questDefinition.requiredKills}. this is taking forever",
+
+            FakePlayerPersonalityType.Tryhard =>
+                $"{currentKills}/{questDefinition.requiredKills}. efficient route so far",
+
+            FakePlayerPersonalityType.Newbie =>
+                $"i got {currentKills}/{questDefinition.requiredKills}, is that good?",
+
+            _ =>
+                $"{questDefinition.questName}: {currentKills}/{questDefinition.requiredKills} {questDefinition.targetEnemyName} defeated."
+        };
+    }
+
+    private string GetXpMessage()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful => $"got {questDefinition.xpReward} XP from that quest",
+            FakePlayerPersonalityType.Grumpy => $"only {questDefinition.xpReward} XP? alright whatever",
+            FakePlayerPersonalityType.Tryhard => $"+{questDefinition.xpReward} XP. moving on",
+            FakePlayerPersonalityType.Newbie => $"wait nice, i got {questDefinition.xpReward} XP",
+            _ => $"gained {questDefinition.xpReward} XP."
+        };
+    }
+
+    private string[] GetAcceptQuestMessages()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful => new[]
+            {
+                $"picking up {questDefinition.questName} if anyone wants to group",
+                $"grabbing {questDefinition.questName}, objective is {questDefinition.targetEnemyName}s",
+                "heading out for quest mobs now"
+            },
+
+            FakePlayerPersonalityType.Grumpy => new[]
+            {
+                $"ugh, doing {questDefinition.questName}",
+                "fine, grabbing this quest",
+                "hope the drop/spawn rate isn't trash"
+            },
+
+            FakePlayerPersonalityType.Tryhard => new[]
+            {
+                $"taking {questDefinition.questName}, should be quick",
+                "starting quest route",
+                "pulling fast, don't stand in my way"
+            },
+
+            FakePlayerPersonalityType.Newbie => new[]
+            {
+                $"i think i accepted {questDefinition.questName}",
+                "where do i go for this quest?",
+                $"do i just kill {questDefinition.targetEnemyName}s?"
+            },
+
+            _ => new[]
+            {
+                $"grabbing {questDefinition.questName}",
+                $"picking up {questDefinition.questName}",
+                "taking this quest real quick",
+                "quest accepted, heading out"
+            }
+        };
+    }
+
+    private string[] GetHuntingMessages()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful => new[]
+            {
+                $"{questDefinition.targetEnemyName}s are up near the hunt area",
+                "plenty of mobs here if anyone needs them",
+                "careful, a few are close together"
+            },
+
+            FakePlayerPersonalityType.Grumpy => new[]
+            {
+                $"these {questDefinition.targetEnemyName.ToLower()}s are annoying",
+                "respawns feel slow",
+                "why are they so spread out",
+                "this quest is padding lol"
+            },
+
+            FakePlayerPersonalityType.Tryhard => new[]
+            {
+                "chain pulling",
+                "clean rotation",
+                "optimizing this route",
+                "no downtime"
+            },
+
+            FakePlayerPersonalityType.Newbie => new[]
+            {
+                "oh no i pulled another one",
+                "am i supposed to loot these?",
+                "how do i know when the quest is done?",
+                "these are harder than i expected"
+            },
+
+            _ => new[]
+            {
+                $"these {questDefinition.targetEnemyName.ToLower()}s are everywhere",
+                "pulling another one",
+                "almost done here",
+                "this spawn rate is actually decent",
+                "anyone else doing this quest?"
+            }
+        };
+    }
+
+    private string[] GetQuestCompleteMessages()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful => new[]
+            {
+                "done here, heading back if anyone needs follow",
+                "quest complete, returning to town",
+                "finished objective"
+            },
+
+            FakePlayerPersonalityType.Grumpy => new[]
+            {
+                "finally done",
+                "about time",
+                "done. never loved that quest"
+            },
+
+            FakePlayerPersonalityType.Tryhard => new[]
+            {
+                "objective complete, turn-in next",
+                "done. clean run",
+                "finished faster than expected"
+            },
+
+            FakePlayerPersonalityType.Newbie => new[]
+            {
+                "it says complete now!",
+                "i think i'm done?",
+                "where do i turn this in again?"
+            },
+
+            _ => new[]
+            {
+                "done with this one, heading back",
+                "quest complete, turning it in",
+                "finally done lol",
+                "easy enough, going back to town"
+            }
+        };
+    }
+
+    private string[] GetTurnInMessages()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful => new[]
+            {
+                $"turned in {questDefinition.questName}",
+                "turn-in done, good luck everyone",
+                "quest complete and turned in"
+            },
+
+            FakePlayerPersonalityType.Grumpy => new[]
+            {
+                "turned in. finally",
+                "done with that nonsense",
+                "quest turned in, moving on"
+            },
+
+            FakePlayerPersonalityType.Tryhard => new[]
+            {
+                "turn-in complete",
+                "XP secured",
+                "quest cycle done"
+            },
+
+            FakePlayerPersonalityType.Newbie => new[]
+            {
+                "oh nice i turned it in",
+                "i found the quest giver!",
+                "that worked!"
+            },
+
+            _ => new[]
+            {
+                $"turned in {questDefinition.questName}",
+                "nice, free XP",
+                "quest done",
+                "easy turn-in"
+            }
+        };
+    }
+
+    private string[] GetRestMessages()
+    {
+        return personalityType switch
+        {
+            FakePlayerPersonalityType.Helpful => new[]
+            {
+                "going to help around town for a bit",
+                "taking a break, whisper if you need help",
+                "back in town now"
+            },
+
+            FakePlayerPersonalityType.Grumpy => new[]
+            {
+                "taking a break from this grind",
+                "enough questing for now",
+                "wandering until something better shows up"
+            },
+
+            FakePlayerPersonalityType.Tryhard => new[]
+            {
+                "resetting route",
+                "checking next objective",
+                "downtime phase"
+            },
+
+            FakePlayerPersonalityType.Newbie => new[]
+            {
+                "i'm just gonna wander now",
+                "what should i do next?",
+                "still learning this zone"
+            },
+
+            _ => new[]
+            {
+                "gonna wander for a bit",
+                "taking a break from questing",
+                "back to town stuff",
+                "might do another quest later"
+            }
+        };
     }
 }
