@@ -2462,7 +2462,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 180, y: -60}
+  m_AnchoredPosition: {x: 20, y: -20}
   m_SizeDelta: {x: 320, y: 90}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &311636866
@@ -6283,7 +6283,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -25, y: -25}
+  m_AnchoredPosition: {x: -20, y: -20}
   m_SizeDelta: {x: 320, y: 250}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &927842676
@@ -8568,13 +8568,17 @@ MonoBehaviour:
   questDefinition: {fileID: 11400000, guid: c651f290ef9b6d14ebcb18b96a1c0136, type: 2}
   questGiver: {fileID: 940197525}
   huntArea: {fileID: 1832682056}
+  repeatQuest: 0
   moveSpeed: 2.5
   arrivalDistance: 0.15
   acceptDelaySeconds: 1.5
   turnInDelaySeconds: 1.5
   restDelaySeconds: 8
+  huntingCommentIntervalMin: 10
+  huntingCommentIntervalMax: 20
   fakePlayerName: Kev the Fake
   announceQuestProgress: 1
+  chatterEnabled: 1
 --- !u!1 &1237856139
 GameObject:
   m_ObjectHideFlags: 0
@@ -18817,7 +18821,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 25, y: 75}
-  m_SizeDelta: {x: 520, y: 230}
+  m_SizeDelta: {x: 625, y: 250}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1789442746
 MonoBehaviour:
