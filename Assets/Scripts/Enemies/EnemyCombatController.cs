@@ -13,6 +13,12 @@ public class EnemyCombatController : MonoBehaviour
         ReturningHome
     }
 
+    private enum AttackStyle
+    {
+        Direct,
+        Projectile
+    }
+
     [Header("Targeting")]
     [SerializeField] private float aggroRange = 4f;
 
@@ -23,8 +29,13 @@ public class EnemyCombatController : MonoBehaviour
     [SerializeField] private float homeArrivalDistance = 0.05f;
 
     [Header("Attack")]
+    [SerializeField] private AttackStyle attackStyle = AttackStyle.Direct;
     [SerializeField] private int attackDamage = 4;
     [SerializeField] private float attackSpeedSeconds = 2f;
+
+    [Header("Projectile Attack")]
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Transform projectileSpawnPoint;
 
     private Rigidbody2D rb;
     private Vector2 homePosition;
@@ -225,8 +236,41 @@ public class EnemyCombatController : MonoBehaviour
             return;
         }
 
+        if (attackStyle == AttackStyle.Projectile)
+        {
+            FireProjectile();
+            return;
+        }
+
         currentTarget.Health.TakeDamage(attackDamage);
 
         Debug.Log($"{gameObject.name} attacks {currentTarget.DisplayName} for {attackDamage} damage.");
+    }
+
+    private void FireProjectile()
+    {
+        if (projectilePrefab == null)
+        {
+            Debug.LogWarning($"{gameObject.name} is set to Projectile attack but has no projectile prefab.");
+            return;
+        }
+
+        Vector3 spawnPosition = projectileSpawnPoint != null
+            ? projectileSpawnPoint.position
+            : transform.position;
+
+        GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+
+        Projectile projectile = projectileObject.GetComponent<Projectile>();
+
+        if (projectile == null)
+        {
+            Debug.LogWarning($"{projectilePrefab.name} does not have a Projectile component.");
+            return;
+        }
+
+        projectile.Initialize(currentTarget.transform, gameObject, attackDamage);
+
+        Debug.Log($"{gameObject.name} fires a projectile at {currentTarget.DisplayName}.");
     }
 }

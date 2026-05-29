@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8198734267892189550}
   - component: {fileID: 1740169947513743841}
   - component: {fileID: 4422246812672001783}
+  - component: {fileID: 1719276238238964423}
   m_Layer: 0
   m_Name: Banditarcher
   m_TagString: Untagged
@@ -35,6 +36,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3978627325900626134}
+  - {fileID: 1511790591385827375}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &3595232304054109346
@@ -112,8 +114,11 @@ MonoBehaviour:
   attackRange: 4.5
   leashRange: 10
   homeArrivalDistance: 0.05
-  attackDamage: 8
-  attackSpeedSeconds: 2
+  attackStyle: 1
+  attackDamage: 3
+  attackSpeedSeconds: 1.5
+  projectilePrefab: {fileID: 4981903680483187131, guid: 92f867f5e871ae744ae9200883539b19, type: 3}
+  projectileSpawnPoint: {fileID: 1511790591385827375}
 --- !u!114 &4422246812672001783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,6 +141,55 @@ MonoBehaviour:
   - item: {fileID: 11400000, guid: 0df43f8a86755734e820da358713962f, type: 2}
     dropChance: 0.25
   lootPickupPrefab: {fileID: 5714656283737485895, guid: 2a8ada2f477e54748bd66ff88a486bd1, type: 3}
+--- !u!114 &1719276238238964423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2175594850704252145}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190c1b4ea3149924eba523a843b92528, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyRangedAttackController
+  meleeCombatController: {fileID: 1740169947513743841}
+  projectilePrefab: {fileID: 4981903680483187131, guid: 92f867f5e871ae744ae9200883539b19, type: 3}
+  projectileSpawnPoint: {fileID: 1511790591385827375}
+  attackRange: 4.5
+  attackSpeedSeconds: 1.5
+  attackDamage: 3
+--- !u!1 &4085065870572754393
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1511790591385827375}
+  m_Layer: 0
+  m_Name: ProjectileSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1511790591385827375
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4085065870572754393}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.132, y: 0.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2043404975305803078}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6952766663724027774
 GameObject:
   m_ObjectHideFlags: 0
