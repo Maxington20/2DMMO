@@ -36,6 +36,11 @@ public class EnemyCombatController : MonoBehaviour
     [Header("Projectile Attack")]
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform projectileSpawnPoint;
+    [SerializeField] private float projectileSpawnForwardOffset = 0.65f;
+    [SerializeField] private float projectileSpawnVerticalOffset = 0.15f;
+
+    [Header("Visual Facing")]
+    [SerializeField] private SpriteRenderer[] spriteRenderersToFlip;
 
     private Rigidbody2D rb;
     private Vector2 homePosition;
@@ -47,6 +52,11 @@ public class EnemyCombatController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         homePosition = rb.position;
+
+        if (spriteRenderersToFlip == null || spriteRenderersToFlip.Length == 0)
+        {
+            spriteRenderersToFlip = GetComponentsInChildren<SpriteRenderer>();
+        }
     }
 
     private void FixedUpdate()
@@ -86,6 +96,7 @@ public class EnemyCombatController : MonoBehaviour
         if (nearestTarget != null)
         {
             currentTarget = nearestTarget;
+            FaceTarget(currentTarget.transform.position);
             currentState = EnemyState.Chasing;
         }
     }
@@ -104,6 +115,8 @@ public class EnemyCombatController : MonoBehaviour
             currentState = EnemyState.ReturningHome;
             return;
         }
+
+        FaceTarget(currentTarget.transform.position);
 
         float distanceToTarget = Vector2.Distance(rb.position, currentTarget.transform.position);
 
@@ -130,6 +143,8 @@ public class EnemyCombatController : MonoBehaviour
             currentState = EnemyState.ReturningHome;
             return;
         }
+
+        FaceTarget(currentTarget.transform.position);
 
         float distanceToTarget = Vector2.Distance(rb.position, currentTarget.transform.position);
 
@@ -161,6 +176,7 @@ public class EnemyCombatController : MonoBehaviour
             return;
         }
 
+        FaceTarget(homePosition);
         MoveToward(homePosition);
     }
 
@@ -242,22 +258,17 @@ public class EnemyCombatController : MonoBehaviour
             return;
         }
 
-        currentTarget.Health.TakeDamage(attackDamage);
-
-        Debug.Log($"{gameObject.name} attacks {currentTarget.DisplayName} for {attackDamage} damage.");
+        currentTarget.Health.TakeDamage(attackDamage, gameObject);
     }
 
     private void FireProjectile()
     {
-        if (projectilePrefab == null)
+        if (projectilePrefab == null || currentTarget == null)
         {
-            Debug.LogWarning($"{gameObject.name} is set to Projectile attack but has no projectile prefab.");
             return;
         }
 
-        Vector3 spawnPosition = projectileSpawnPoint != null
-            ? projectileSpawnPoint.position
-            : transform.position;
+        Vector3 spawnPosition = GetProjectileSpawnPosition();
 
         GameObject projectileObject = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
 
@@ -270,7 +281,38 @@ public class EnemyCombatController : MonoBehaviour
         }
 
         projectile.Initialize(currentTarget.transform, gameObject, attackDamage);
+    }
 
-        Debug.Log($"{gameObject.name} fires a projectile at {currentTarget.DisplayName}.");
+    private Vector3 GetProjectileSpawnPosition()
+    {
+        if (currentTarget == null)
+        {
+            return projectileSpawnPoint != null ? projectileSpawnPoint.position : transform.position;
+        }
+
+        float directionX = currentTarget.transform.position.x >= transform.position.x ? 1f : -1f;
+
+        Vector3 basePosition = projectileSpawnPoint != null
+            ? projectileSpawnPoint.position
+            : transform.position;
+
+        return new Vector3(
+            transform.position.x + projectileSpawnForwardOffset * directionX,
+            basePosition.y + projectileSpawnVerticalOffset,
+            transform.position.z
+        );
+    }
+
+    private void FaceTarget(Vector3 targetPosition)
+    {
+        bool shouldFaceLeft = targetPosition.x < transform.position.x;
+
+        foreach (SpriteRenderer spriteRenderer in spriteRenderersToFlip)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = shouldFaceLeft;
+            }
+        }
     }
 }
