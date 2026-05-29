@@ -18,6 +18,7 @@ public class FakePlayerQuestController : MonoBehaviour
     [SerializeField] private QuestDefinition questDefinition;
     [SerializeField] private Transform questGiver;
     [SerializeField] private Transform huntArea;
+    [SerializeField] private bool repeatQuest = false;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
@@ -27,10 +28,13 @@ public class FakePlayerQuestController : MonoBehaviour
     [SerializeField] private float acceptDelaySeconds = 1.5f;
     [SerializeField] private float turnInDelaySeconds = 1.5f;
     [SerializeField] private float restDelaySeconds = 8f;
+    [SerializeField] private float huntingCommentIntervalMin = 10f;
+    [SerializeField] private float huntingCommentIntervalMax = 20f;
 
     [Header("Chat")]
     [SerializeField] private string fakePlayerName = "Fake Player";
     [SerializeField] private bool announceQuestProgress = true;
+    [SerializeField] private bool chatterEnabled = true;
 
     private Rigidbody2D rb;
     private FakePlayerCombatController combatController;
@@ -39,6 +43,7 @@ public class FakePlayerQuestController : MonoBehaviour
     private FakeQuestState currentState;
     private int currentKills;
     private float stateTimer;
+    private float huntingCommentTimer;
 
     private void Awake()
     {
@@ -123,6 +128,14 @@ public class FakePlayerQuestController : MonoBehaviour
 
         if (currentKills >= questDefinition.requiredKills)
         {
+            SayRandom(new[]
+            {
+                "done with this one, heading back",
+                "quest complete, turning it in",
+                "finally done lol",
+                "easy enough, going back to town"
+            });
+
             SetState(FakeQuestState.ReturningToQuestGiver);
         }
     }
@@ -138,11 +151,13 @@ public class FakePlayerQuestController : MonoBehaviour
 
         currentKills = 0;
 
-        ChatManager.Instance?.AddMessage(
-            ChatChannel.Zone,
-            fakePlayerName,
-            $"accepted quest: {questDefinition.questName}."
-        );
+        SayRandom(new[]
+        {
+            $"grabbing {questDefinition.questName}",
+            $"picking up {questDefinition.questName}",
+            "taking this quest real quick",
+            "quest accepted, heading out"
+        });
 
         SetState(FakeQuestState.TravelingToHuntArea);
     }
@@ -152,6 +167,22 @@ public class FakePlayerQuestController : MonoBehaviour
         if (combatController != null)
         {
             combatController.enabled = true;
+        }
+
+        huntingCommentTimer -= Time.deltaTime;
+
+        if (huntingCommentTimer <= 0f)
+        {
+            SayRandom(new[]
+            {
+                $"these {questDefinition.targetEnemyName.ToLower()}s are everywhere",
+                "pulling another one",
+                "almost done here",
+                "this spawn rate is actually decent",
+                "anyone else doing this quest?"
+            });
+
+            ResetHuntingCommentTimer();
         }
     }
 
@@ -164,11 +195,13 @@ public class FakePlayerQuestController : MonoBehaviour
             return;
         }
 
-        ChatManager.Instance?.AddMessage(
-            ChatChannel.Zone,
-            fakePlayerName,
-            $"turned in quest: {questDefinition.questName}."
-        );
+        SayRandom(new[]
+        {
+            $"turned in {questDefinition.questName}",
+            "nice, free XP",
+            "quest done",
+            "easy turn-in"
+        });
 
         if (questDefinition.xpReward > 0)
         {
@@ -191,7 +224,19 @@ public class FakePlayerQuestController : MonoBehaviour
             return;
         }
 
-        //SetState(FakeQuestState.TravelingToQuestGiver);
+        if (repeatQuest)
+        {
+            SetState(FakeQuestState.TravelingToQuestGiver);
+            return;
+        }
+
+        SayRandom(new[]
+        {
+            "gonna wander for a bit",
+            "taking a break from questing",
+            "back to town stuff",
+            "might do another quest later"
+        });
 
         if (wanderController != null)
         {
@@ -258,6 +303,10 @@ public class FakePlayerQuestController : MonoBehaviour
                 stateTimer = acceptDelaySeconds;
                 break;
 
+            case FakeQuestState.Hunting:
+                ResetHuntingCommentTimer();
+                break;
+
             case FakeQuestState.TurningInQuest:
                 stateTimer = turnInDelaySeconds;
                 break;
@@ -266,5 +315,26 @@ public class FakePlayerQuestController : MonoBehaviour
                 stateTimer = restDelaySeconds;
                 break;
         }
+    }
+
+    private void ResetHuntingCommentTimer()
+    {
+        huntingCommentTimer = Random.Range(huntingCommentIntervalMin, huntingCommentIntervalMax);
+    }
+
+    private void SayRandom(string[] messages)
+    {
+        if (!chatterEnabled || messages == null || messages.Length == 0)
+        {
+            return;
+        }
+
+        string message = messages[Random.Range(0, messages.Length)];
+
+        ChatManager.Instance?.AddMessage(
+            ChatChannel.Zone,
+            fakePlayerName,
+            message
+        );
     }
 }
