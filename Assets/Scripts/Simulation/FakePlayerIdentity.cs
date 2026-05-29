@@ -8,6 +8,16 @@ public class FakePlayerIdentity : MonoBehaviour
     public string DisplayName => displayName;
     public FakePlayerPersonalityType PersonalityType => personalityType;
 
+    private void Awake()
+    {
+        SyncCombatEntityName();
+    }
+
+    private void OnValidate()
+    {
+        SyncCombatEntityName();
+    }
+
     public void Say(string message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -110,5 +120,15 @@ public class FakePlayerIdentity : MonoBehaviour
                 "anyone else questing?"
             }
         };
+    }
+
+    private void SyncCombatEntityName()
+    {
+        CombatEntity combatEntity = GetComponent<CombatEntity>();
+
+        if (combatEntity != null)
+        {
+            combatEntity.SetDisplayName(displayName);
+        }
     }
 }

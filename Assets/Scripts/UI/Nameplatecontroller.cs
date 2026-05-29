@@ -24,15 +24,23 @@ public class NameplateController : MonoBehaviour
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
 
-        if (target != null)
-        {
-            targetHealth = target.GetComponent<Health>();
-        }
+        CacheTargetComponents();
     }
 
     private void LateUpdate()
     {
-        if (target == null || nameText == null || mainCamera == null)
+        if (target == null || nameText == null)
+        {
+            Hide();
+            return;
+        }
+
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
+
+        if (mainCamera == null)
         {
             Hide();
             return;
@@ -51,14 +59,21 @@ public class NameplateController : MonoBehaviour
 
         Show();
 
+        nameText.text = ResolveDisplayName();
+
         Vector3 screenPosition = mainCamera.WorldToScreenPoint(target.position + worldOffset);
         transform.position = screenPosition;
+    }
+
+    public void Initialize(Transform newTarget)
+    {
+        SetTarget(newTarget);
     }
 
     public void SetTarget(Transform newTarget)
     {
         target = newTarget;
-        targetHealth = target != null ? target.GetComponent<Health>() : null;
+        CacheTargetComponents();
     }
 
     public void SetName(string displayName)
@@ -67,6 +82,49 @@ public class NameplateController : MonoBehaviour
         {
             nameText.text = displayName;
         }
+    }
+
+    private void CacheTargetComponents()
+    {
+        targetHealth = target != null ? target.GetComponent<Health>() : null;
+    }
+
+    private string ResolveDisplayName()
+    {
+        if (target == null)
+        {
+            return string.Empty;
+        }
+
+        FakePlayerIdentity fakePlayerIdentity = target.GetComponent<FakePlayerIdentity>();
+
+        if (fakePlayerIdentity != null)
+        {
+            return fakePlayerIdentity.DisplayName;
+        }
+
+        CombatEntity combatEntity = target.GetComponent<CombatEntity>();
+
+        if (combatEntity != null)
+        {
+            return combatEntity.DisplayName;
+        }
+
+        QuestGiver questGiver = target.GetComponent<QuestGiver>();
+
+        if (questGiver != null)
+        {
+            return questGiver.DisplayName;
+        }
+
+        Enemy enemy = target.GetComponent<Enemy>();
+
+        if (enemy != null)
+        {
+            return enemy.EnemyName;
+        }
+
+        return target.name;
     }
 
     private void Show()

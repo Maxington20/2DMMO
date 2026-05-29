@@ -8,8 +8,21 @@ public class CombatEntity : MonoBehaviour
     [SerializeField] private bool canBeTargetedByEnemies = true;
 
     private Health health;
+    private FakePlayerIdentity fakePlayerIdentity;
 
-    public string DisplayName => displayName;
+    public string DisplayName
+    {
+        get
+        {
+            if (fakePlayerIdentity != null)
+            {
+                return fakePlayerIdentity.DisplayName;
+            }
+
+            return displayName;
+        }
+    }
+
     public bool CanBeTargetedByEnemies => canBeTargetedByEnemies;
     public Health Health => health;
     public bool IsAlive => health != null && !health.IsDead;
@@ -17,6 +30,7 @@ public class CombatEntity : MonoBehaviour
     private void Awake()
     {
         health = GetComponent<Health>();
+        fakePlayerIdentity = GetComponent<FakePlayerIdentity>();
     }
 
     public void SetDisplayName(string newDisplayName)
