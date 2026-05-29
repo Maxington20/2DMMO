@@ -59,15 +59,13 @@ public class FakeTradeChatController : MonoBehaviour
 
         string message = messages[Random.Range(0, messages.Length)];
 
-        ChatManager.Instance?.AddMessage(
-            ChatChannel.Trade,
-            identity.DisplayName,
-            message
-        );
+        identity.SayToChannel(ChatChannel.Trade, message);
     }
 
     private string[] GetTradeMessages()
     {
+        string guildName = identity.GuildName;
+
         return identity.PersonalityType switch
         {
             FakePlayerPersonalityType.Helpful => new[]
@@ -75,7 +73,8 @@ public class FakeTradeChatController : MonoBehaviour
                 "WTS extra minor health potions cheap",
                 "anyone need help finding the vendor?",
                 "selling spare wolf pelts if anyone needs crafting mats later",
-                "remember to vendor junk before heading back out"
+                "remember to vendor junk before heading back out",
+                identity.HasGuild ? $"{guildName} has extra potions if anyone needs" : "extra potions available"
             },
 
             FakePlayerPersonalityType.Grumpy => new[]
@@ -83,7 +82,8 @@ public class FakeTradeChatController : MonoBehaviour
                 "WTS torn cloth, vendor trash basically",
                 "prices in this town are awful",
                 "anyone buying stolen trinkets or am i just vendoring these",
-                "trade chat is dead again"
+                "trade chat is dead again",
+                identity.HasGuild ? $"anyone from {guildName} actually online?" : "anyone actually online?"
             },
 
             FakePlayerPersonalityType.Tryhard => new[]
@@ -91,7 +91,8 @@ public class FakeTradeChatController : MonoBehaviour
                 "WTB potions in bulk",
                 "WTS bandit loot, fast sale only",
                 "buying consumables before next route",
-                "need cheap potions, paying copper"
+                "need cheap potions, paying copper",
+                identity.HasGuild ? $"{guildName} buying consumables for route prep" : "buying consumables for route prep"
             },
 
             FakePlayerPersonalityType.Newbie => new[]
@@ -99,7 +100,8 @@ public class FakeTradeChatController : MonoBehaviour
                 "how do i sell items?",
                 "is bent dagger worth keeping?",
                 "does anyone buy torn cloth?",
-                "where is the merchant?"
+                "where is the merchant?",
+                identity.HasGuild ? $"someone from {guildName} said to ask in trade?" : "am i using trade chat right?"
             },
 
             _ => new[]
@@ -107,7 +109,8 @@ public class FakeTradeChatController : MonoBehaviour
                 "WTS wolf pelts",
                 "WTB minor health potions",
                 "selling junk near vendor",
-                "anyone need bandit drops?"
+                "anyone need bandit drops?",
+                identity.HasGuild ? $"{guildName} looking for cheap potions" : "looking for cheap potions"
             }
         };
     }

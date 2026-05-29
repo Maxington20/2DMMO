@@ -3441,6 +3441,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 940197525}
     - target: {fileID: 3555979464615343718, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: guildName
+      value: New Dawn
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555979464615343718, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
       propertyPath: displayName
       value: Tessa
       objectReference: {fileID: 0}
@@ -3491,6 +3495,10 @@ PrefabInstance:
     - target: {fileID: 6218614514757944682, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
       propertyPath: m_Name
       value: FakePlayer_Tessa
+      objectReference: {fileID: 0}
+    - target: {fileID: 6562357182813989877, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: displayName
+      value: Tessa
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5408,6 +5416,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FakePlayer_Mira
       objectReference: {fileID: 0}
+    - target: {fileID: 6562357182813989877, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: displayName
+      value: Mira
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6412,6 +6424,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 940197525}
     - target: {fileID: 3555979464615343718, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: guildName
+      value: Iron Vanguard
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555979464615343718, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
       propertyPath: displayName
       value: Kael
       objectReference: {fileID: 0}
@@ -6462,6 +6478,10 @@ PrefabInstance:
     - target: {fileID: 6218614514757944682, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
       propertyPath: m_Name
       value: FakePlayer_Kael
+      objectReference: {fileID: 0}
+    - target: {fileID: 6562357182813989877, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: displayName
+      value: Kael
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7628,6 +7648,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 6a9d03400178d064790caf0556bc3d48, type: 2}
     - target: {fileID: 3555979464615343718, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: guildName
+      value: Rusty Blades
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555979464615343718, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
       propertyPath: displayName
       value: Brakk
       objectReference: {fileID: 0}
@@ -7678,6 +7702,10 @@ PrefabInstance:
     - target: {fileID: 6218614514757944682, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
       propertyPath: m_Name
       value: FakePlayer_Brakk
+      objectReference: {fileID: 0}
+    - target: {fileID: 6562357182813989877, guid: b7e95e057a5d4cb4a99b94cdcd103a19, type: 3}
+      propertyPath: displayName
+      value: Brakk
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
