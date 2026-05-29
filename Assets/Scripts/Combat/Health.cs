@@ -147,18 +147,26 @@ public class Health : MonoBehaviour
             return;
         }
 
-        PlayerQuestLog questLog = lastAttacker.GetComponent<PlayerQuestLog>();
+        Enemy enemy = GetComponent<Enemy>();
 
-        if (questLog == null)
+        if (enemy == null)
         {
             return;
         }
 
-        Enemy enemy = GetComponent<Enemy>();
+        PlayerQuestLog playerQuestLog = lastAttacker.GetComponent<PlayerQuestLog>();
 
-        if (enemy != null)
+        if (playerQuestLog != null)
         {
-            questLog.RegisterEnemyKill(enemy);
+            playerQuestLog.RegisterEnemyKill(enemy);
+        }
+
+        FakePlayerQuestController fakeQuestController =
+            lastAttacker.GetComponent<FakePlayerQuestController>();
+
+        if (fakeQuestController != null)
+        {
+            fakeQuestController.RegisterEnemyKill(enemy);
         }
     }
 
@@ -244,6 +252,13 @@ public class Health : MonoBehaviour
         if (fakeMovement != null)
         {
             fakeMovement.enabled = enabled;
+        }
+
+        FakePlayerQuestController fakeQuest = GetComponent<FakePlayerQuestController>();
+
+        if (fakeQuest != null)
+        {
+            fakeQuest.enabled = enabled;
         }
     }
 
